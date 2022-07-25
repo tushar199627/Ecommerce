@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
 const {
+  isValidObjectId,
   isValid,
   isValidRequestBody,
   validPassword,
@@ -250,6 +251,21 @@ const loginUser=async function(req,res){
     catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }
+}
+
+exports.updateUserProfile = async (req,res) =>{
+
+  
+  const userIdInParams = req.params.userId
+  const userIdInToken = req.userId
+
+  if(!isValidObjectId(userIdInParams)) return res.status(400).send({status:false, message:"User id is not valid"})
+  if(userIdInParams !== userIdInToken) return res.status(403).send({status:false,message:"You are not authorize to update details"})
+  const data = req.body
+
+  const updatedData = userModel.findOneAndUpdate({_id:userIdInParams}, {...data}, {new:true})
+
+  res.status(200).send({status:true,message:"User profile updated",data:updatedData})
 }
 module.exports.createUser = createUser; 
 module.exports.loginUser =loginUser
