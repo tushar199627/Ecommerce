@@ -2,6 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { uploadFile } = require("../aws/aws");
 const jwt = require("jsonwebtoken");
+const { json } = require("body-parser");
 
 
 const saltRounds = 10;
@@ -18,10 +19,10 @@ const {
 
 const createUser = async (req, res) => {
   try {
-    const data = JSON.parse(req.body.data);
+    let data = req.body;
     console.log(data)
 
-    const { fname, lname, email, profileImage, phone, password, address } =
+    let { fname, lname, email, profileImage, phone, password, address } =
       data;
 
     if (!isValidRequestBody(data)) {
