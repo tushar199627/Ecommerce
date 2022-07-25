@@ -26,10 +26,18 @@ const isValidObjectId=function(objectId){
     return mongoose.Types.ObjectId.isValid(objectId)
 }
 
-const isValidISBN =(isbn) => {
-    if(/^[0-9]{13}$/.test(isbn))
+
+const isValidPhone=(pw)=>{
+    if (/^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/.test(pw))
     return true
 }
+
+
+// const isValidISBN =(isbn) => {
+//     if(/^[0-9]{13}$/.test(isbn))   const regexNumber = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/
+
+//     return true
+// }
 // const isValidBody=(body)=>{
 //     if(/^[a-zA-Z]+(([',. -][a-zA-Z0-9 ])?[a-zA-Z0-9]*)*$/.test(body))
 //     return true
@@ -41,4 +49,4 @@ const isValidISBN =(isbn) => {
 
 
 
-module.exports={isValidEmail,isValidName,isValid,isValidPassword,isValidTitle, isValidObjectId, isValidISBN}
+module.exports={isValidEmail,isValidName,isValid,isValidPassword,isValidTitle, isValidObjectId, isValidPhone}
