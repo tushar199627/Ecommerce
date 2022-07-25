@@ -22,27 +22,20 @@ const {
 const createUser = async (req, res) => {
   try {
     let data = req.body;
-    console.log(data)
+    //console.log(data)
 
-    let { fname, lname, email, profileImage, phone, password, address } =
-      data;
+    let { fname, lname, email, profileImage, phone, password, address } =data;
 
     if (!isValidRequestBody(data)) {
-      //validating is there any data inside request body
-      return res
-        .status(400)
-        .send({ status: false, message: "Please provide the Details" });
+      return res.status(400).send({ status: false, message: "Please provide the Details" });
     }
 
     if (!isValid(fname)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide a FirstName or a Valid FirstName",
+      return res.status(400).send({status: false,message: "Please provide a FirstName or a Valid FirstName",
       });
     }
     if (!validName.test(fname)) {
-      return res
-        .status(400)
+      return res.status(400)
         .send({ status: false, message: "FirstName cannot be a number" });
     }
 
