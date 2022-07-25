@@ -36,77 +36,55 @@ const createUser = async (req, res) => {
       });
     }
     if (!validName.test(fname)) {
-      return res.status(400)
-        .send({ status: false, message: "FirstName cannot be a number" });
+      return res.status(400).send({ status: false, message: "FirstName cannot be a number" });
     }
 
     if (!isValid(lname)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide a LastName or a Valid LastName",
+      return res.status(400).send({status: false,message: "Please provide a LastName or a Valid LastName",
       });
     }
     if (!validName.test(lname)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "LastName cannot be a number" });
+      return res.status(400).send({ status: false, message: "LastName cannot be a number" });
     }
     if (!isValid(email)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide a Email d or a Valid Email Id",
+      return res.status(400).send({status: false,message: "Please provide a Email d or a Valid Email Id",
       });
     }
 
     if (!validEmail.test(email)) {
-      return res
-        .status(400)
-        .send({ status: false, message: `${email} is not valid email Id` });
+      return res.status(400).send({ status: false, message: `${email} is not valid email Id` });
     }
 
     //checking is there same Email Id present inside database or not
     let isAllreadyExistEmail = await userModel.findOne({ email: email });
     if (isAllreadyExistEmail) {
-      return res.status(400).send({
-        status: false,
-        message: `this email id -${email} already exist`,
+      return res.status(400).send({status: false,message: `this email id -${email} already exist`,
       });
     }
 
     if (!isValid(phone)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide a Phone Number or a Valid Phone Number",
+      return res.status(400).send({status: false,message: "Please provide a Phone Number or a Valid Phone Number",
       });
     }
 
     if (!validPhone.test(phone)) {
-      return res.status(400).send({
-        status: false,
-        message: `this phone number-${phone} is not valid, try an Indian Number`,
+      return res.status(400).send({status: false,message: `this phone number-${phone} is not valid, try an Indian Number`,
       });
     }
 
     //checking is there same phone number present inside database or not
     let isAllreadyExistPhone = await userModel.findOne({ phone: phone });
     if (isAllreadyExistPhone) {
-      return res.status(400).send({
-        status: false,
-        message: ` this phone number- ${phone} already exist`,
+      return res.status(400).send({status: false,message: ` this phone number- ${phone} already exist`,
       });
     }
     if (!isValid(password)) {
-      return res.status(400).send({
-        status: false,
-        message: "Please provide a Password or a Valid Password",
+      return res.status(400).send({status: false,message: "Please provide a Password or a Valid Password",
       });
     }
 
     if (!validPassword(password)) {
-      return res.status(400).send({
-        status: false,
-        message:
-          "Password Should be Minimum 8 Character and Maximum 15 Character Long",
+      return res.status(400).send({status: false,message:"Password Should be Minimum 8 Character and Maximum 15 Character Long",
       });
     }
 
