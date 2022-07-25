@@ -3,6 +3,7 @@ const validator = require("../validation/validator")
 const uploadFile = require('../aws/uploadFile')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { default: mongoose } = require('mongoose')
 
 const userRegister = async function(req, res){
     try{
@@ -77,4 +78,67 @@ const userLogin = async function(req,res){
     return res.status(200).send({status: true, message:'User Login Successful', data : {userId : Login._id, token : token} })
 }
 
-module.exports = {userRegister, userLogin}
+
+let updateProfile = async(req,res)=>{
+    let userId = req.params.userId;
+    let data = req.body;
+    let {fname, lname, email, profileImage, phone, password, address} = data;
+
+
+    if(!mongoose.isValidObjectId(userId)) return res.status(400).send({status: false, message: 'enter valid user id'})
+
+    if(Object.keys(data).length==0) return res.status(400).send({status: false, message:'enter data to update'});
+
+    let finduser = await userModel.findOne({_id: userId});
+    if(!finduser) return res.status(404).send({status: false, message: 'user id does not exist'});
+    
+    if(fname) {
+        finduser.fname=fname
+    }
+    if(lname) {
+        finduser.lname=lname
+    }
+    if(email) {
+        finduser.email=email
+    }
+    if(phone) {
+        finduser.phone=phone
+    }
+
+    //let findAddress = await userModel.findOne({_id: userId});
+
+    if(address){
+
+        if(address.shipping){
+            let {street, city, pincode} = address.shipping;
+            if(street){
+                finduser.address.shipping.street = street;
+            }
+            if(city){
+                finduser.address.shipping.city = city;
+            }
+            if(pincode){
+                finduser.address.shipping.pincode = pincode;
+            }
+        }
+
+        if(address.billing){
+            let {street, city, pincode} = address.billing;
+            if(street){
+                finduser.address.billing.street = street;
+            }
+            if(city){
+                finduser.address.billing.city = city;
+            }
+            if(pincode){
+                finduser.address.billing.pincode = pincode;
+            }
+        }
+    }
+}
+
+
+
+
+
+module.exports = {userRegister, userLogin, updateProfile}
