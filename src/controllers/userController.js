@@ -16,6 +16,8 @@ const {
   validEmail,
 } = require("../validator/validate");
 
+
+//------------------------------------------POST/REGISTER----------------------------------------------------------------------------
 const createUser = async (req, res) => {
   try {
     const data = JSON.parse(req.body.data);
@@ -251,5 +253,28 @@ const loginUser=async function(req,res){
         return res.status(500).send({ status: false, message: err.message });
     }
 }
-module.exports.createUser = createUser; 
-module.exports.loginUser =loginUser
+
+//--------------------------GET/USERBYID------------------------------------------------
+
+const getUserById = async function(req,res){
+  try{
+
+    const userId = req.params.userId
+
+    const userData = await userModel.findOne({_id:userId}).select({address:1,_id:1,fname:1,lname:1,email:1,profileImage:1,phone:1,password:1})
+
+    if(!userData)return res.status(404).send({status:false,message:"User not found"})
+    return res.status(200).send({status:true,message:"user profile details", data:userData})
+  }
+  catch(err){
+    res.status(500).send({status:false,message:err.message})
+  }
+
+}
+
+
+
+
+
+
+module.exports = {createUser,loginUser,getUserById}
