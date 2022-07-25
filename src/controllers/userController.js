@@ -2,7 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { uploadFile } = require("../aws/aws");
 const jwt = require("jsonwebtoken");
-const { json } = require("body-parser");
+
 
 
 const saltRounds = 10;
@@ -118,6 +118,7 @@ const createUser = async (req, res) => {
     data.password = await bcrypt.hash(password, saltRounds);
 
 
+    
     if (!isValid(address.shipping.street)) {
       return res
         .status(400)
