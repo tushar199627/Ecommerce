@@ -7,6 +7,7 @@ const { json } = require("body-parser");
 
 const saltRounds = 10;
 const {
+  isValidObjectId,
   isValid,
   isValidRequestBody,
   validPassword,
