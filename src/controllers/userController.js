@@ -15,10 +15,10 @@ const {
   validPhone,
   validEmail,
 } = require("../validator/validate");
-const { DataExchange } = require("aws-sdk");
+
 
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
-const createUser = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
     let data = req.body;
 
@@ -217,7 +217,7 @@ const createUser = async (req, res) => {
   }
 };
 
-const loginUser = async function (req, res) {
+exports.loginUser = async function (req, res) {
   try {
     let data = req.body;
     const { email, password } = data;
@@ -274,7 +274,7 @@ const loginUser = async function (req, res) {
 
 //--------------------------GET/USERBYID------------------------------------------------
 
-const getUserById = async function (req, res) {
+exports.getUserById = async function (req, res) {
   try {
     const userId = req.params.userId;
 
@@ -302,7 +302,7 @@ const getUserById = async function (req, res) {
 };
 
 
-const updateUserProfile = async (req, res) => {
+exports.updateUserProfile = async (req, res) => {
   const userIdInParams = req.params.userId;
   const userIdInToken = req.userId;
 
@@ -331,4 +331,3 @@ const updateUserProfile = async (req, res) => {
 };
 
 
-module.exports = { createUser, loginUser, getUserById,updateUserProfile };
