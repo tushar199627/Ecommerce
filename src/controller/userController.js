@@ -24,6 +24,14 @@ const userRegister = async function (req, res) {
         if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
         if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character' })
+        let Fulladdress = JSON.parse(address)
+        data.address = Fulladdress
+        if (!Fulladdress.shipping.street) return res.status(400).send({ status: false, message: "Please enter shipping street" })
+        if (!Fulladdress.shipping.city) return res.status(400).send({ status: false, message: "Please enter shipping city" })
+        if (!Fulladdress.shipping.pincode) return res.status(400).send({ status: false, message: "Please enter shipping pincode" })
+        if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
+        if (!Fulladdress.billing.city) return res.status(400).send({ status: false, message: "Please enter billing city" })
+        if (!Fulladdress.billing.pincode) return res.status(400).send({ status: false, message: "Please enter billing pincode" })
 
         const bcryptPassword = await bcrypt.hash(password, 10)
         data.password = bcryptPassword
@@ -37,7 +45,6 @@ const userRegister = async function (req, res) {
             //upload to s3 and get the uploaded link
             // res.send the link back to frontend/postman
             data.profileImage = await uploadFile.uploadFile(files[0])
-            //res.status(201).send({msg: "file uploaded succesfully", data: uploadedFileURL})
         }
         else {
             return res.status(400).send({ msg: "No file found" })
@@ -79,11 +86,28 @@ const userLogin = async function (req, res) {
 }
 
 
+const userProfile = async function (req, res) {
+    try {
+        const userId = req.params.userId
+        if (!userId) return res.status(400).send({ status: false, message: "Please enter uesrId in params path" })
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'Not a valid userId' })
+        // console.log(req.headers.authorization.split(" "))
+        const checkUser = await userModel.findById(userId)
+        if (!checkUser) return res.status(400).send({ status: false, message: "UserId invalid" })
+        return res.status(200).send({ status: true, message: "User profile details", data: checkUser })
+    }
+    catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+
 let updateProfile = async (req, res) => {
     try {
         let userId = req.params.userId;
         let data = req.body;
         let { fname, lname, email, profileImage, phone, password, address } = data;
+        let files = req.files;
 
         if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'enter valid user id' })
 
@@ -92,32 +116,49 @@ let updateProfile = async (req, res) => {
         let finduser = await userModel.findOne({ _id: userId });
         if (!finduser) return res.status(404).send({ status: false, message: 'user id does not exist' });
 
-        if (fname) {
+        if (fname) {          //Update first name
             if (!validator.isValid(fname)) return res.status(400).send({ status: false, message: 'Please enter first name in right formate' })
             if (!validator.isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter first name in right formate" })
             finduser.fname = fname;
         }
-        if (lname) {
+        if (lname) {        //Update last name
             if (!validator.isValid(lname)) return res.status(400).send({ status: false, message: 'Please enter last name in right formate' })
             if (!validator.isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter last name in right formate" })
             finduser.lname = lname;
         }
-        if (email) {
+        if (email) {        //Update email
             if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
             const emailUnique = await userModel.findOne({ email })
             if (emailUnique) return res.status(400).send({ status: false, message: 'Already register Email' })
             finduser.email = email
         }
-        if (phone) {
+        if (phone) {      //Update phone 
             if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
             const phoneUnique = await userModel.findOne({ phone })
             if (phoneUnique) return res.status(400).send({ status: false, message: "Already register Phone Number" })
             finduser.phone = phone
         }
 
+        if(password){     //Update password
+            if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character' })
+            const bcryptPassword = await bcrypt.hash(password, 10)
+            finduser.password = bcryptPassword
+        }
+
+        if(profileImage){ //Update profile image
+            if (files && files.length > 0) {
+                //upload to s3 and get the uploaded link
+                // res.send the link back to frontend/postman
+                data.profileImage = await uploadFile.uploadFile(files[0])
+            }
+            else {
+                return res.status(400).send({ msg: "No file found" })
+            }
+        }
+
         if (address) {
 
-            if (address.shipping) {
+            if (address.shipping) {                   //Update shipping address  
                 let { street, city, pincode } = address.shipping;
                 if (street) {
                     finduser.address.shipping.street = street;
@@ -130,7 +171,7 @@ let updateProfile = async (req, res) => {
                 }
             }
 
-            if (address.billing) {
+            if (address.billing) {                //Update billing address
                 let { street, city, pincode } = address.billing;
                 if (street) {
                     finduser.address.billing.street = street;
@@ -144,8 +185,16 @@ let updateProfile = async (req, res) => {
             }
         }
 
+        //Authorisation
+        let tokenUserId = req.decodedToken.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
+
+        //Update Profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
 
+        //Send Response
         res.status(200).send({ status: true, message: "User profile updated", data: updateProfile });
 
     } catch (err) {
@@ -154,7 +203,5 @@ let updateProfile = async (req, res) => {
 }
 
 
+module.exports = { userRegister, userLogin, updateProfile, userProfile }
 
-
-
-module.exports = { userRegister, userLogin, updateProfile }
