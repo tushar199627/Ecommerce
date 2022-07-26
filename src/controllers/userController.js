@@ -20,12 +20,15 @@ const {
 
 
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
-const createUser = async (req, res) => {
+const createUser = async function (req, res) {
   try {
-    let data = req.body;
-    //console.log(data)
+      let data = req.body.data
+      let Data = JSON.parse(data)
+      let files = req.files
 
-    let { fname, lname, email, profileImage, phone, password, address } =data;
+      let { fname, lname, email, phone, password, address } = Data
+
+    
 
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Please provide the Details" });
@@ -93,73 +96,51 @@ const createUser = async (req, res) => {
 
 
     if (!isValid(address.shipping.street)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Street should be Present" });
+      return res.status(400).send({ status: false, message: "Street should be Present" });
     }
 
     if (!isValid(address.shipping.city)) {
-      return res.status(400).send({
-        status: false,
-        message: "City should be Present or City should be Valid",
+      return res.status(400).send({status: false,message: "City should be Present or City should be Valid",
       });
     }
 
     if (!validCity.test(address.shipping.city)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "City cannot be Number" });
+      return res.status(400).send({ status: false, message: "City cannot be Number" });
     }
 
     if (!isValid(address.shipping.pincode)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Pincode should be Present" });
+      return res.status(400).send({ status: false, message: "Pincode should be Present" });
     }
 
     if (!validPincode.test(address.shipping.pincode)) {
-      return res.status(400).send({
-        status: false,
-        message:
-          "Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long",
+      return res.status(400).send({status: false,message:"Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long",
       });
     }
 
     if (!isValid(address.billing.street)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Street should be Present" });
+      return res.status(400).send({ status: false, message: "Street should be Present" });
     }
 
     if (!isValid(address.billing.city)) {
-      return res.status(400).send({
-        status: false,
-        message: "City should be Present or City should be Valid",
+      return res.status(400).send({status: false,message: "City should be Present or City should be Valid",
       });
     }
 
     if (!validCity.test(address.billing.city)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "City cannot be Number" });
+      return res.status(400).send({ status: false, message: "City cannot be Number" });
     }
 
     if (!isValid(address.billing.pincode)) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Pincode should be Present" });
+      return res.status(400).send({ status: false, message: "Pincode should be Present" });
     }
 
     if (!validPincode.test(address.billing.pincode)) {
-      return res.status(400).send({
-        status: false,
-        message:
-          "Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long",
+      return res.status(400).send({status: false,message:"Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long",
       });
     }
-    //validation ended here
+  
 
-    let files = req.files;
+    //let files = req.files;
 
     if (!isValidRequestBody(files)) {
       return res
@@ -188,15 +169,8 @@ const createUser = async (req, res) => {
 
     const userCreated = await userModel.create(userData);
 
-    return res
-      .status(201)
-      .send({
-        status: true,
-        msg: "User Created Successfully",
-        data: userCreated,
-      });
-  } catch (error) {
-    res.status(500).send({ status: false, message: error.message });
+    return res.status(201).send({status: true,msg: "User Created Successfully",data: userCreated,});
+  } catch (error) {res.status(500).send({ status: false, message: error.message });
   }
 };
 
@@ -227,7 +201,9 @@ const loginUser=async function(req,res){
     }
 }
 
-exports.updateUserProfile = async (req,res) =>{
+
+//-----------------------PUT/BY ID-----------------------------------------------------
+const updateUserProfile = async (req,res) =>{
 
   
   const userIdInParams = req.params.userId
@@ -265,4 +241,4 @@ const getUserById = async function(req,res){
 
 
 
-module.exports = {createUser,loginUser,getUserById}
+module.exports = {createUser,loginUser,getUserById,updateUserProfile }
