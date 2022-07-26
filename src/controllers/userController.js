@@ -161,7 +161,7 @@ const createUser = async function (req, res) {
     }
   
 
-    //let files = req.files;
+    let files = req.files;
 
     if (!isValidRequestBody(files)) {
       return res
@@ -188,41 +188,63 @@ const createUser = async function (req, res) {
   }
 };
 
+//----------------------------LOGIN/USER-------------------------------------------
+
 const loginUser = async function (req, res) {
   try {
-    let data = req.body;
-    const { email, password } = data;
+      let data = req.body
+      let { email, password } = data
 
-    let details = await userModel.findOne({ email: email, password: password });
-    if (!details) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Invalid credentials" });
+      if (Object.keys(data).length == 0) {
+          return res.status(400).send({
+              status: false,
+              msg: "request body must contain some valid data"
+          })
+      }
+      if (password.length < 8 || password.length > 16) {
+        return res.status(400).send({
+            status: false,
+            msg: "password should be min 8 and max 16"
+        })
     }
 
-    //create the jwt token
+    let User = await userModel.findOne({ email: email })
+    if (User) {
+        const Passwordmatch = bcrypt.compareSync(data.password, User.password)
+        if (Passwordmatch) {
+            let iat = Math.floor(Date.now() / 1000)
+            let token = jwt.sign({ userId: User._id, exp: iat + (60 * 50) }, "RoomNo-46")
+            let details = { userId: User._id, token: token }
 
-    let token = jwt.sign(
-      {
-        userId: details._id.toString(),
-      },
-      "project5Group46",
-      { expiresIn: "1d" }
-    );
+            return res.status(200).send({
+                status: true,
+                msg: "your login is successfull",
+                data: details
+            })
+        }
 
-    res.setHeader("x-api-key", token);
+        else {
+            return res.status(404).send({
+                status: false,
+                msg: "password is not matched"
+            })
+        }
+    }
+    return res.status(404).send({
+        status: false,
+        msg: "email not found"
+    })
 
-    return res
-      .status(200)
-      .send({
-        status: true,
-        message: "User login successfull",
-        data: { token },
-      });
-  } catch (err) {
-    return res.status(500).send({ status: false, message: err.message });
-  }
-};
+}
+catch (error) {
+    console.log("This is the error:", error.message)
+    res.status(500).send({ msg: "server error", err: error })
+}
+
+}
+//------------------------------------UPDATE/API----------------------------------------------------------
+
+
 
 const updateUserProfile = async (req, res) => {
   const userIdInParams = req.params.userId;
