@@ -243,9 +243,9 @@ const loginUser = async function (req, res) {
         .send({ status: false, message: "Email Not found" });
     }
 
-    const checkPassword = await bcrypt.compare(password, details.password)
+    const decrypt = await bcrypt.compare(password, details.password)
 
-    if (!checkPassword) return res.status(401).send({ status: false, message: `Login failed!! password is incorrect.` });
+    if (!decrypt) return res.status(401).send({ status: false, message: `Login failed!! password is incorrect.` });
 
     //create the jwt token
 
