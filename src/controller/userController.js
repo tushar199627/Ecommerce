@@ -13,7 +13,7 @@ const userRegister = async function (req, res) {
     try {
         let data = req.body
         let files = req.files
-        let { fname, lname, email, profileImage, phone, password, address } = data
+        let { fname, lname, email, phone, password, address } = data
 
         //-----------------[Require field validation]
 
