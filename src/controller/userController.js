@@ -74,7 +74,7 @@ const userRegister = async function (req, res) {
 
         //------------[Document create]
         const user = await userModel.create(data)
-        return res.status(201).send({ status: true, message: 'User Craeted Successfully', data: user })
+        return res.status(201).send({ status: true, message: 'User Created Successfully', data: user })
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -138,8 +138,9 @@ let updateProfile = async (req, res) => {
     try {
         let userId = req.params.userId;
         let data = req.body;
-        let { fname, lname, email, phone, password, address } = data;
         let files = req.files;
+
+        let { fname, lname, email, phone, password, address } = data;
 
         if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
@@ -190,6 +191,7 @@ let updateProfile = async (req, res) => {
         }
 
         if (address) {
+            address = JSON.parse(address)
 
             if (address.shipping) {                   //Update shipping address  
                 let { street, city, pincode } = address.shipping;
@@ -219,10 +221,10 @@ let updateProfile = async (req, res) => {
         }
 
         //Authorisation
-        let tokenUserId = req.decodedToken.userId
-        if (userId != tokenUserId) {
-            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        }
+        // let tokenUserId = req.decodedToken.userId
+        // if (userId != tokenUserId) {
+        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        // }
 
         //Update Profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
