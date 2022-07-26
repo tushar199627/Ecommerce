@@ -23,6 +23,14 @@ const userRegister = async function(req, res){
     if(!validator.isValidPhone(phone)) return res.status(400).send({status : false , message : 'Please enter a valid phone number'})
     if(!password) return res.status(400).send({status : false , message : 'Please enter password'})
     if(!validator.isValidPassword(password)) return res.status(400).send({status : false , message : 'Password should be between 8 to 15 character'})
+    let Fulladdress = JSON.parse(address)
+    data.address = Fulladdress
+    if(!Fulladdress.shipping.street) return res.status(400).send({status : false, message: "Please enter shipping street"})
+    if(!Fulladdress.shipping.city) return res.status(400).send({status : false, message: "Please enter shipping city"})
+    if(!Fulladdress.shipping.pincode) return res.status(400).send({status : false, message: "Please enter shipping pincode"})
+    if(!Fulladdress.billing.street) return res.status(400).send({status : false, message: "Please enter billing street"})
+    if(!Fulladdress.billing.city) return res.status(400).send({status : false, message: "Please enter billing city"})
+    if(!Fulladdress.billing.pincode) return res.status(400).send({status : false, message: "Please enter billing pincode"})
 
     const bcryptPassword = await bcrypt.hash(password, 10)
         data.password = bcryptPassword
@@ -77,4 +85,19 @@ const userLogin = async function(req,res){
     return res.status(200).send({status: true, message:'User Login Successful', data : {userId : Login._id, token : token} })
 }
 
-module.exports = {userRegister, userLogin}
+
+const userProfile = async function(req,res){
+    try{
+        const userId = req.params.userId
+        if(!userId) return res.status(400).send({status : false, message : "Please enter uesrId in params path"})
+        if(!validator.isValidObjectId(userId)) return res.status(400).send({status : false, message : 'Not a valid userId'})
+        // console.log(req.headers.authorization.split(" "))
+        const checkUser = await userModel.findById(userId)
+        if(!checkUser) return res.status(400).send({status : false, message : "UserId invalid"})
+        return res.status(200).send({status : true, message: "User profile details", data : checkUser})
+    }
+    catch(err){
+        return res.status(500).send({status : false, message : err.message})
+    }
+}
+module.exports = {userRegister, userLogin, userProfile}
