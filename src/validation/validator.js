@@ -32,9 +32,13 @@ const isValidPhone=(pw)=>{
     return true
 }
 
+const isValidFile=(pw)=>{
+    if (/(\/*\.(?:png|gif|webp|jpeg|jpg))/.test(pw))
+    return true
+}
 
-// const isValidISBN =(isbn) => {
-//     if(/^[0-9]{13}$/.test(isbn))   const regexNumber = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/
+// const isValidISBN =(isbn) => { /(https|http?:\/\/.*\.(?:png|gif|webp|jpeg|jpg))/
+//     if(/^[0-9]{13}$/.test(isbn))   const regexNumber = /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/ 
 
 //     return true
 // }
@@ -49,4 +53,4 @@ const isValidPhone=(pw)=>{
 
 
 
-module.exports={isValidEmail,isValidName,isValid,isValidPassword,isValidTitle, isValidObjectId, isValidPhone}
+module.exports={isValidEmail,isValidName,isValid,isValidPassword,isValidTitle, isValidObjectId, isValidPhone, isValidFile}
