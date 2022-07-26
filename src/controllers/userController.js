@@ -2,7 +2,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { uploadFile } = require("../aws/aws");
 const jwt = require("jsonwebtoken");
-const { json } = require("body-parser");
+
 
 
 const saltRounds = 10;
@@ -20,13 +20,13 @@ const {
 
 
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
-const createUser = async (req, res) => {
+exports.createUser = async (req, res) => {
   try {
     let data = req.body;
-    console.log(data)
+    
 
-    let { fname, lname, email, profileImage, phone, password, address } =
-      data;
+    let { fname, lname, email, profileImage, phone, password, address } = data;
+    
 
     if (!isValidRequestBody(data)) {
       //validating is there any data inside request body
@@ -230,61 +230,95 @@ const createUser = async (req, res) => {
 };
 
 
-const loginUser=async function(req,res){
-    try{
-        let data = req.body
-        const{email,password}=data
+exports.loginUser = async function (req, res) {
+  try {
+    let data = req.body
+    const { email, password } = data
 
-        let details = await userModel.findOne({email:email,password:password});
-        if(!details){
-            return res.status(400).send({ status: false, message: "Invalid credentials"});
-        }
-       
-
-        //create the jwt token 
-
-        let token = jwt.sign({
-            userId: details._id.toString(),
-        }, "project5Group46", { expiresIn: "1d" });
-           
-        res.setHeader("x-api-key", token);
-
-        return res.status(200).send({ status: true, message: "User login successfull",data:{ token }})
+    let details = await userModel.findOne({ email: email, password: password });
+    if (!details) {
+      return res.status(400).send({ status: false, message: "Invalid credentials" });
     }
-    catch (err) {
-        return res.status(500).send({ status: false, message: err.message });
-    }
+
+
+    //create the jwt token 
+
+    let token = jwt.sign({
+      userId: details._id.toString(),
+    }, "project5Group46", { expiresIn: "1d" });
+
+    res.setHeader("x-api-key", token);
+
+    return res.status(200).send({ status: true, message: "User login successfull", data: { token } })
+  }
+  catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
+  }
 }
 
-exports.updateUserProfile = async (req,res) =>{
+exports.updateUserProfile = async (req, res) => {
 
-  
-  const userIdInParams = req.params.userId
-  const userIdInToken = req.userId
 
-  if(!isValidObjectId(userIdInParams)) return res.status(400).send({status:false, message:"User id is not valid"})
-  if(userIdInParams !== userIdInToken) return res.status(403).send({status:false,message:"You are not authorize to update details"})
-  const data = req.body
+  try {
+    const userIdInParams = req.params.userId
+    const userIdInToken = req.userId
 
-  const updatedData = userModel.findOneAndUpdate({_id:userIdInParams}, {...data}, {new:true})
+    if (!isValidObjectId(userIdInParams)) return res.status(400).send({ status: false, message: "User id is not valid" })
+    if (userIdInParams !== userIdInToken) return res.status(403).send({ status: false, message: "You are not authorize to update details" })
+    const data = req.body
 
-  res.status(200).send({status:true,message:"User profile updated",data:updatedData})
+    let { fname, lname, email, profileImage, phone, password, address } = data;
+
+    if(data.hasOwnProperty("fname")){
+      if (!isValid(fname)) {
+        return res.status(400).send({
+          status: false,
+          message: "Please provide a FirstName or a Valid FirstName",
+        });
+      }
+      if (!validName.test(fname)) {
+        return res
+          .status(400)
+          .send({ status: false, message: "FirstName cannot be a number" });
+      }
+    }
+    if(data.hasOwnProperty("lname")){
+      if (!isValid(lname)) {
+        return res.status(400).send({
+          status: false,
+          message: "Please provide a Last Name or a Valid Last Name",
+        });
+      }
+      if (!validName.test(lname)) {
+        return res
+          .status(400)
+          .send({ status: false, message: "Last Name cannot be a number" });
+      }
+    }
+   
+
+    const updatedData = userModel.findOneAndUpdate({ _id: userIdInParams }, { ...data }, { new: true })
+
+    res.status(200).send({ status: true, message: "User profile updated", data: updatedData })
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
+  }
 }
 
 //--------------------------GET/USERBYID------------------------------------------------
 
-const getUserById = async function(req,res){
-  try{
+exports.getUserById = async function (req, res) {
+  try {
 
     const userId = req.params.userId
 
-    const userData = await userModel.findOne({_id:userId}).select({address:1,_id:1,fname:1,lname:1,email:1,profileImage:1,phone:1,password:1})
+    const userData = await userModel.findOne({ _id: userId }).select({ address: 1, _id: 1, fname: 1, lname: 1, email: 1, profileImage: 1, phone: 1, password: 1 })
 
-    if(!userData)return res.status(404).send({status:false,message:"User not found"})
-    return res.status(200).send({status:true,message:"user profile details", data:userData})
+    if (!userData) return res.status(404).send({ status: false, message: "User not found" })
+    return res.status(200).send({ status: true, message: "user profile details", data: userData })
   }
-  catch(err){
-    res.status(500).send({status:false,message:err.message})
+  catch (err) {
+    res.status(500).send({ status: false, message: err.message })
   }
 
 }
@@ -294,4 +328,4 @@ const getUserById = async function(req,res){
 
 
 
-module.exports = {createUser,loginUser,getUserById}
+//module.exports = {createUser,loginUser,updateUserProfile,getUserById}
