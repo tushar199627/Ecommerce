@@ -16,8 +16,9 @@ const {
   validEmail,
 } = require("../validator/validate");
 
+
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
-const createUser = async function (req, res) {
+exports.createUser = async (req, res) => {
   try {
     let data = req.body;
 
@@ -188,95 +189,52 @@ const createUser = async function (req, res) {
   }
 };
 
-//----------------------------LOGIN/USER-------------------------------------------
-
-const loginUser = async function (req, res) {
+exports.loginUser = async function (req, res) {
   try {
       let data = req.body
       let { email, password } = data
 
-      if (Object.keys(data).length == 0) {
-          return res.status(400).send({
-              status: false,
-              msg: "request body must contain some valid data"
-          })
-      }
-      if (password.length < 8 || password.length > 16) {
-        return res.status(400).send({
-            status: false,
-            msg: "password should be min 8 and max 16"
-        })
+    if (!isValidRequestBody(data)) {
+      return res.status(400).send({ status: false, message: 'Please provide login details' })
+  }
+
+  if (!isValid(email)) {
+      return res.status(400).send({ status: false, message: 'Email Id is required' })
+  }
+
+
+  if (!isValid(password)) {
+      return res.status(400).send({ status: false, message: 'Password is required' })
+  }
+
+    let details = await userModel.findOne({email});
+    console.log(details)
+    if (!details) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Email Not found" });
     }
 
-    let User = await userModel.findOne({ email: email })
-    if (User) {
-        const Passwordmatch = bcrypt.compareSync(data.password, User.password)
-        if (Passwordmatch) {
-            let iat = Math.floor(Date.now() / 1000)
-            let token = jwt.sign({ userId: User._id, exp: iat + (60 * 50) }, "RoomNo-46")
-            let details = { userId: User._id, token: token }
+    const decrypt = await bcrypt.compare(password, details.password)
 
-            return res.status(200).send({
-                status: true,
-                msg: "your login is successfull",
-                data: details
-            })
-        }
+    if (!decrypt) return res.status(401).send({ status: false, message: `Login failed!! password is incorrect.` });
 
-        else {
-            return res.status(404).send({
-                status: false,
-                msg: "password is not matched"
-            })
-        }
-    }
-    return res.status(404).send({
-        status: false,
-        msg: "email not found"
-    })
+    //create the jwt token
 
-}
-catch (error) {
-    console.log("This is the error:", error.message)
-    res.status(500).send({ msg: "server error", err: error })
-}
-
-}
-//------------------------------------UPDATE/API----------------------------------------------------------
+    let token = jwt.sign(
+      {
+        userId: details._id.toString(),
+        iat: Math.floor(Date.now() / 1000)
+      },
+      "project5Group46",
+      { expiresIn: "1d" }
+    );
 
 
-
-const updateUserProfile = async (req, res) => {
-  const userIdInParams = req.params.userId;
-  const userIdInToken = req.userId;
-
-  if (!isValidObjectId(userIdInParams))
-    return res
-      .status(400)
-      .send({ status: false, message: "User id is not valid" });
-  if (userIdInParams !== userIdInToken)
-    return res
-      .status(403)
-      .send({
-        status: false,
-        message: "You are not authorize to update details",
-      });
-  const data = req.body;
-
-  const updatedData = userModel.findOneAndUpdate(
-    { _id: userIdInParams },
-    { ...data },
-    { new: true }
-  );
-
-  res
-    .status(200)
-    .send({ status: true, message: "User profile updated", data: updatedData });
-};
 
 //--------------------------GET/USERBYID------------------------------------------------
 
-const getUserById = async function (req, res) {
+exports.getUserById = async function (req, res) {
   try {
     const userId = req.params.userId;
 
@@ -303,4 +261,31 @@ const getUserById = async function (req, res) {
   }
 };
 
-module.exports = { createUser, loginUser, getUserById,updateUserProfile };
+//--------------------------------UPDATE/API------------------------------------------------
+exports.updateUserProfile = async (req, res) => {
+  const userIdInParams = req.params.userId;
+  const userIdInToken = req.userId;
+
+  if (!isValidObjectId(userIdInParams))
+    return res
+      .status(400)
+      .send({ status: false, message: "User id is not valid" });
+  if (userIdInParams !== userIdInToken)
+    return res
+      .status(403)
+      .send({
+        status: false,
+        message: "You are not authorize to update details",
+      });
+  const data = req.body;
+
+  const updatedData = userModel.findOneAndUpdate(
+    { _id: userIdInParams },
+    { ...data },
+    { new: true }
+  );
+
+  res
+    .status(200)
+    .send({ status: true, message: "User profile updated", data: updatedData });
+};
