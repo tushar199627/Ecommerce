@@ -180,9 +180,8 @@ let updateProfile = async (req, res) => {
         }
 
         if (files) {  //Update profile image
+            if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
             if (files && files.length > 0) {
-                //upload to s3 and get the uploaded link
-                // res.send the link back to frontend/postman
                 finduser.profileImage = await uploadFile.uploadFile(files[0])
             }
             else {
@@ -196,12 +195,15 @@ let updateProfile = async (req, res) => {
             if (address.shipping) {                   //Update shipping address  
                 let { street, city, pincode } = address.shipping;
                 if (street) {
+                    if(!validator.isValid(street)) return res.status(400).send({status : false, message : 'Please enter street'})
                     finduser.address.shipping.street = street;
                 }
                 if (city) {
+                    if(!validator.isValidName(city)) return res.status(400).send({status : false, message : 'Please enter a valid city name'})
                     finduser.address.shipping.city = city;
                 }
                 if (pincode) {
+                    if (!(/^[1-9]{1}[0-9]{5}$/).test(pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
                     finduser.address.shipping.pincode = pincode;
                 }
             }
@@ -209,12 +211,15 @@ let updateProfile = async (req, res) => {
             if (address.billing) {                //Update billing address
                 let { street, city, pincode } = address.billing;
                 if (street) {
+                    if(!validator.isValid(street)) return res.status(400).send({status : false, message : 'Please enter street'})
                     finduser.address.billing.street = street;
                 }
                 if (city) {
+                    if(!validator.isValidName(city)) return res.status(400).send({status : false, message : 'Please enter a valid city name'})
                     finduser.address.billing.city = city;
                 }
                 if (pincode) {
+                    if (!(/^[1-9]{1}[0-9]{5}$/).test(pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
                     finduser.address.billing.pincode = pincode;
                 }
             }
