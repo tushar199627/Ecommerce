@@ -15,6 +15,7 @@ const {
   validPhone,
   validEmail,
 } = require("../validator/validate");
+const { DataExchange } = require("aws-sdk");
 
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
 const createUser = async (req, res) => {
@@ -221,18 +222,37 @@ const loginUser = async function (req, res) {
     let data = req.body;
     const { email, password } = data;
 
-    let details = await userModel.findOne({ email: email, password: password });
+    if (!isValidRequestBody(data)) {
+      return res.status(400).send({ status: false, message: 'Please provide login details' })
+  }
+
+  if (!isValid(email)) {
+      return res.status(400).send({ status: false, message: 'Email Id is required' })
+  }
+
+
+  if (!isValid(password)) {
+      return res.status(400).send({ status: false, message: 'Password is required' })
+  }
+
+    let details = await userModel.findOne({email});
+    console.log(details)
     if (!details) {
       return res
         .status(400)
-        .send({ status: false, message: "Invalid credentials" });
+        .send({ status: false, message: "Email Not found" });
     }
+
+    const checkPassword = await bcrypt.compare(password, details.password)
+
+    if (!checkPassword) return res.status(401).send({ status: false, message: `Login failed!! password is incorrect.` });
 
     //create the jwt token
 
     let token = jwt.sign(
       {
         userId: details._id.toString(),
+        iat: Math.floor(Date.now() / 1000)
       },
       "project5Group46",
       { expiresIn: "1d" }
@@ -250,34 +270,6 @@ const loginUser = async function (req, res) {
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
-};
-
-const updateUserProfile = async (req, res) => {
-  const userIdInParams = req.params.userId;
-  const userIdInToken = req.userId;
-
-  if (!isValidObjectId(userIdInParams))
-    return res
-      .status(400)
-      .send({ status: false, message: "User id is not valid" });
-  if (userIdInParams !== userIdInToken)
-    return res
-      .status(403)
-      .send({
-        status: false,
-        message: "You are not authorize to update details",
-      });
-  const data = req.body;
-
-  const updatedData = userModel.findOneAndUpdate(
-    { _id: userIdInParams },
-    { ...data },
-    { new: true }
-  );
-
-  res
-    .status(200)
-    .send({ status: true, message: "User profile updated", data: updatedData });
 };
 
 //--------------------------GET/USERBYID------------------------------------------------
@@ -308,5 +300,35 @@ const getUserById = async function (req, res) {
     res.status(500).send({ status: false, message: err.message });
   }
 };
+
+
+const updateUserProfile = async (req, res) => {
+  const userIdInParams = req.params.userId;
+  const userIdInToken = req.userId;
+
+  if (!isValidObjectId(userIdInParams))
+    return res
+      .status(400)
+      .send({ status: false, message: "User id is not valid" });
+  if (userIdInParams !== userIdInToken)
+    return res
+      .status(403)
+      .send({
+        status: false,
+        message: "You are not authorize to update details",
+      });
+  const data = req.body;
+
+  const updatedData = userModel.findOneAndUpdate(
+    { _id: userIdInParams },
+    { ...data },
+    { new: true }
+  );
+
+  res
+    .status(200)
+    .send({ status: true, message: "User profile updated", data: updatedData });
+};
+
 
 module.exports = { createUser, loginUser, getUserById,updateUserProfile };
