@@ -106,12 +106,10 @@ let updateProfile = async (req, res) => {
     try {
         let userId = req.params.userId;
         let data = req.body;
-        let { fname, lname, email, profileImage, phone, password, address } = data;
+        let { fname, lname, email, phone, password, address } = data;
         let files = req.files;
 
-        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'enter valid user id' })
-
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: 'enter data to update' });
+        if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
         let finduser = await userModel.findOne({ _id: userId });
         if (!finduser) return res.status(404).send({ status: false, message: 'user id does not exist' });
@@ -121,17 +119,20 @@ let updateProfile = async (req, res) => {
             if (!validator.isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter first name in right formate" })
             finduser.fname = fname;
         }
+
         if (lname) {        //Update last name
             if (!validator.isValid(lname)) return res.status(400).send({ status: false, message: 'Please enter last name in right formate' })
             if (!validator.isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter last name in right formate" })
             finduser.lname = lname;
         }
+
         if (email) {        //Update email
             if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
             const emailUnique = await userModel.findOne({ email })
             if (emailUnique) return res.status(400).send({ status: false, message: 'Already register Email' })
             finduser.email = email
         }
+
         if (phone) {      //Update phone 
             if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
             const phoneUnique = await userModel.findOne({ phone })
@@ -139,17 +140,17 @@ let updateProfile = async (req, res) => {
             finduser.phone = phone
         }
 
-        if(password){     //Update password
+        if (password) {     //Update password
             if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character' })
             const bcryptPassword = await bcrypt.hash(password, 10)
             finduser.password = bcryptPassword
         }
 
-        if(profileImage){ //Update profile image
+        if (files) {  //Update profile image
             if (files && files.length > 0) {
                 //upload to s3 and get the uploaded link
                 // res.send the link back to frontend/postman
-                data.profileImage = await uploadFile.uploadFile(files[0])
+                finduser.profileImage = await uploadFile.uploadFile(files[0])
             }
             else {
                 return res.status(400).send({ msg: "No file found" })
