@@ -22,6 +22,7 @@ const getAllProduct = async function(req, res){
     if(priceSort>1 || priceSort < -1 || priceSort ==0) return res.status(400).send({status : false, message : 'Please enter either 1 or -1 is priceSort'})
 
     const products = await productModel.find(searchObj).sort(filters)  
+    if(products.length==0) return res.status(404).send({status : false, message: "No data found"})
     return res.status(200).send({status : false, message: "Success", data : products})
     }
     catch(err){
