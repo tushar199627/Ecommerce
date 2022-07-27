@@ -4,8 +4,9 @@ const auth = require("../controllers/authentication/authentication")
  const router = express.Router()
 
  router.post("/register", userController.createUser)
- router.get("/login", userController.loginUser)
- router.post("/user/:userId/profile", userController.getUserById)
+ router.post("/login", userController.loginUser)
+ router.get("/user/:userId/profile", userController.getUserById)
  router.put("/user/:userId/profile", userController.updateUserProfile)
 
  module.exports = router;
+ 

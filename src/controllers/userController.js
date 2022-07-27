@@ -323,3 +323,5 @@ exports.updateUserProfile = async (req, res) => {
     .status(200)
     .send({ status: true, message: "User profile updated", data: updatedData });
   };
+
+}
