@@ -3,7 +3,7 @@ const validator = require("../validator/validate")
 
 //***********************************POST /products******************************************************
 
-exports.createProduct = async function (req, res) {
+  const createProduct = async function (req, res) {
     try {
         let data = req.body
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
@@ -137,4 +137,4 @@ const deleteProduct = async function (req, res) {
     }
 }
 
-module.exports = { getProductDetails, deleteProduct }
+module.exports = { createProduct,getProductDetails, deleteProduct }
