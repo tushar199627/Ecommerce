@@ -12,9 +12,13 @@ router.get('/user/:userId/profile', middle.authentication, userController.userPr
 
 router.put('/user/:userId/profile', middle.authentication, userController.updateProfile)
 
+router.post('/products', productController.createProduct)
+
 router.get('/products', productController.getAllProduct)
 
 router.get('/products/:productId', productController.getById)
+
+router.put('/products/:productId', productController.updateProductDetails)
 
 router.delete('/products/:productId', productController.deleteProduct)
 
