@@ -79,29 +79,29 @@ const updateProductDetails = async function (req, res) {
             updateData.productImage = updateProductImage
         }
 
-        if (typeof title != "undefined") {
+        if (title ) {
             if (!isValid(title)) return res.status(400).send({ status: false, message: "title Should be Valid" })
             if (!isValidString(title)) return res.status(400).send({ status: false, message: "title should not contain number" })
             if (await productModel.findOne({ title })) return res.status(400).send({ status: false, message: "title Should be Unique" })
         }
-        if (description != undefined) {
+        if (description) {
             if (!isValid(description)) return res.status(400).send({ status: false, message: "description Should be Valid" })
         }
-        if (price != undefined) {
+        if (price) {
             if (!isValidPrice(price)) return res.status(400).send({ status: false, message: "price Should be Valid" })
         }
 
-        if (style != undefined) {
+        if (style) {
             if (!isValid(style)) return res.status(400).send({ status: false, message: "style Should be Valid" })
             if (!isValidString(style)) return res.status(400).send({ status: false, message: "style Should Not Contain Numbers" })
         }
-        if (availableSizes != undefined) {
+        if (availableSizes) {
             if (!isValid(availableSizes)) return res.status(400).send({ status: false, message: "availableSizes Should be Valid" })
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
             if (availableSizes.map(x => isValidSize(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be Among  S,XS,M,X,L,XXL,XL" })
             updateData.availableSizes = availableSizes
         }
-        if (installments != undefined) {
+        if (installments) {
             if (isValidString(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
 
