@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 
 const authentication = async function (req, res, next) {
     try {
+        if(!req.headers.authorization) return res.status(401).send({status : false, message : "Token is not present in header"})
         let token = req.headers.authorization.split(" ")
         let userId = req.params.userId
 

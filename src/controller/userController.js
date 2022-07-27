@@ -178,15 +178,15 @@ let updateProfile = async (req, res) => {
             finduser.password = bcryptPassword
         }
 
-        if (files) {  //Update profile image
-            if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
-            if (files && files.length > 0) {
+        //if (files) {  //Update profile image
+        if (files && files.length > 0) {
+                if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
                 finduser.profileImage = await uploadFile.uploadFile(files[0])
             }
-            else {
-                return res.status(400).send({ msg: "No file found" })
-            }
-        }
+        //     else {
+        //         return res.status(400).send({ msg: "No file found" })
+        //     }
+        // }
 
         if (address) {
             address = JSON.parse(address)
