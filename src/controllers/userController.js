@@ -3,8 +3,6 @@ const bcrypt = require("bcrypt");
 const { uploadFile } = require("../aws/aws");
 const jwt = require("jsonwebtoken");
 
-
-
 const saltRounds = 10;
 const {
   isValidObjectId,
@@ -18,15 +16,12 @@ const {
   validEmail,
 } = require("../validator/validate");
 
-
 //------------------------------------------POST/REGISTER----------------------------------------------------------------------------
 exports.createUser = async (req, res) => {
   try {
     let data = req.body;
-    
 
-    let { fname, lname, email, profileImage, phone, password, address } = data;
-    
+    let { fname, lname, email, profileImage, phone, password } = data;
 
     if (!isValidRequestBody(data)) {
       //validating is there any data inside request body
@@ -120,33 +115,39 @@ exports.createUser = async (req, res) => {
     // hashing password
     data.password = await bcrypt.hash(password, saltRounds);
 
+    let userAddress = JSON.parse(data.address)
+    data.address = userAddress
 
-    if (!isValid(address.shipping.street)) {
+    if (!isValid(userAddress.shipping && userAddress.billing)) {
+      return res.status(400).send({ status: false, message: "Please provide Address shipping And Billing Address" });
+    }
+
+    if (!isValid(userAddress.shipping.street)) {
       return res
         .status(400)
         .send({ status: false, message: "Street should be Present" });
     }
 
-    if (!isValid(address.shipping.city)) {
+    if (!isValid(userAddress.shipping.city)) {
       return res.status(400).send({
         status: false,
         message: "City should be Present or City should be Valid",
       });
     }
 
-    if (!validCity.test(address.shipping.city)) {
+    if (!validCity.test(userAddress.shipping.city)) {
       return res
         .status(400)
         .send({ status: false, message: "City cannot be Number" });
     }
 
-    if (!isValid(address.shipping.pincode)) {
+    if (!isValid(userAddress.shipping.pincode)) {
       return res
         .status(400)
         .send({ status: false, message: "Pincode should be Present" });
     }
 
-    if (!validPincode.test(address.shipping.pincode)) {
+    if (!validPincode.test(userAddress.shipping.pincode)) {
       return res.status(400).send({
         status: false,
         message:
@@ -154,32 +155,32 @@ exports.createUser = async (req, res) => {
       });
     }
 
-    if (!isValid(address.billing.street)) {
+    if (!isValid(userAddress.billing.street)) {
       return res
         .status(400)
         .send({ status: false, message: "Street should be Present" });
     }
 
-    if (!isValid(address.billing.city)) {
+    if (!isValid(userAddress.billing.city)) {
       return res.status(400).send({
         status: false,
         message: "City should be Present or City should be Valid",
       });
     }
 
-    if (!validCity.test(address.billing.city)) {
+    if (!validCity.test(userAddress.billing.city)) {
       return res
         .status(400)
         .send({ status: false, message: "City cannot be Number" });
     }
 
-    if (!isValid(address.billing.pincode)) {
+    if (!isValid(userAddress.billing.pincode)) {
       return res
         .status(400)
         .send({ status: false, message: "Pincode should be Present" });
     }
 
-    if (!validPincode.test(address.billing.pincode)) {
+    if (!validPincode.test(userAddress.billing.pincode)) {
       return res.status(400).send({
         status: false,
         message:
@@ -203,27 +204,13 @@ exports.createUser = async (req, res) => {
     // Add profileImage
     data.profileImage = profileImage;
 
-    let hash = bcrypt.hashSync(password, saltRounds);
+    const userCreated = await userModel.create(data);
 
-    let userData = {
-      fname,
-      lname,
-      email,
-      profileImage,
-      phone,
-      password: hash,
-      address,
-    };
-
-    const userCreated = await userModel.create(userData);
-
-    return res
-      .status(201)
-      .send({
-        status: true,
-        msg: "User Created Successfully",
-        data: userCreated,
-      });
+    return res.status(201).send({
+      status: true,
+      msg: "User Created Successfully",
+      data: userCreated,
+    });
   } catch (error) {
     res.status(500).send({ status: false, message: error.message });
   }
@@ -264,12 +251,16 @@ exports.updateUserProfile = async (req, res) => {
     const userIdInToken = req.userId
 
     if (!isValidObjectId(userIdInParams)) return res.status(400).send({ status: false, message: "User id is not valid" })
-    if (userIdInParams !== userIdInToken) return res.status(403).send({ status: false, message: "You are not authorize to update details" })
-    const data = req.body
+   // if (userIdInParams !== userIdInToken) return res.status(403).send({ status: false, message: "You are not authorize to update details" })
+    const dataFromBody = req.body
+    let { fname, lname, email, profileImage, phone, password, address } = req.body
+    let a = JSON.stringify(dataFromBody)
+    const data =JSON.parse(a)
 
-    let { fname, lname, email, profileImage, phone, password, address } = data;
-
-    if(data.hasOwnProperty("fname")){
+    console.log(data)
+    
+    console.log(fname)
+    if (data.hasOwnProperty("fname")) {
       if (!isValid(fname)) {
         return res.status(400).send({
           status: false,
@@ -282,7 +273,7 @@ exports.updateUserProfile = async (req, res) => {
           .send({ status: false, message: "FirstName cannot be a number" });
       }
     }
-    if(data.hasOwnProperty("lname")){
+    if (data.hasOwnProperty("lname")) {
       if (!isValid(lname)) {
         return res.status(400).send({
           status: false,
@@ -295,10 +286,111 @@ exports.updateUserProfile = async (req, res) => {
           .send({ status: false, message: "Last Name cannot be a number" });
       }
     }
-   
+    if (data.hasOwnProperty("email")) {
+      if (!isValid(email)) {
+        return res.status(400).send({
+          status: false,
+          message: "Please provide a Email d or a Valid Email Id",
+        });
+      }
 
-    const updatedData = userModel.findOneAndUpdate({ _id: userIdInParams }, { ...data }, { new: true })
+      if (!validEmail.test(email)) {
+        return res
+          .status(400)
+          .send({ status: false, message: `${email} is not valid email Id` });
+      }
+    }
+    if (data.hasOwnProperty("phone")) {
+      if (!isValid(phone)) {
+        return res.status(400).send({
+          status: false,
+          message: "Please provide a Phone Number or a Valid Phone Number",
+        });
+      }
 
+      if (!validPhone.test(phone)) {
+        return res.status(400).send({
+          status: false,
+          message: `this phone number-${phone} is not valid, try an Indian Number`,
+        });
+      }
+    }
+    if (data.hasOwnProperty("password")) {
+      if (!isValid(password)) {
+        return res.status(400).send({
+          status: false,
+          message: "Please provide a Password or a Valid Password",
+        });
+      }
+
+      if (!validPassword(password)) {
+        return res.status(400).send({
+          status: false,
+          message:
+            "Password Should be Minimum 8 Character and Maximum 15 Character Long",
+        });
+      }
+      data.password = await bcrypt.hash(password, saltRounds);
+    }
+    if (data.hasOwnProperty("address")) {
+      let userAddress = JSON.parse(data.address)
+      data.address = userAddress
+      if (userAddress.hasOwnProperty("shipping")) {
+
+        if (!isValid(userAddress.shipping)) {
+          return res.status(400).send({ status: false, message: "Please provide Address shipping" });
+        }
+
+        if (!isValid(userAddress.shipping.street)) {
+          return res.status(400).send({ status: false, message: "Street should be Present" });
+        }
+
+        if (!isValid(userAddress.shipping.city)) {
+          return res.status(400).send({status: false,message: "City should be Present or City should be Valid"});
+        }
+
+        if (!validCity.test(userAddress.shipping.city)) {
+          return res.status(400).send({ status: false, message: "City cannot be Number" });
+        }
+
+        if (!isValid(userAddress.shipping.pincode)) {
+          return res.status(400).send({ status: false, message: "Pincode should be Present" });
+        }
+
+        if (!validPincode.test(userAddress.shipping.pincode)) {
+          return res.status(400).send({status: false, message:"Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long"});
+        }
+      }
+      if (userAddress.hasOwnProperty("billing")){
+        if (!isValid(userAddress.billing)) {
+          return res.status(400).send({ status: false, message: "Please provide Address billing" });
+        }
+
+        if (!isValid(userAddress.billing.street)) {
+          return res.status(400).send({ status: false, message: "Street should be Present" });
+        }
+
+        if (!isValid(userAddress.billing.city)) {
+          return res.status(400).send({status: false,message: "City should be Present or City should be Valid"});
+        }
+
+        if (!validCity.test(userAddress.billing.city)) {
+          return res.status(400).send({ status: false, message: "City cannot be Number" });
+        }
+
+        if (!isValid(userAddress.billing.pincode)) {
+          return res.status(400).send({ status: false, message: "Pincode should be Present" });
+        }
+
+        if (!validPincode.test(userAddress.billing.pincode)) {
+          return res.status(400).send({status: false, message:"Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long"});
+        }
+      }
+    }
+  
+    console.log(data)
+    const updatedData =await userModel.findOneAndUpdate({ _id: userIdInParams }, {data}, {new:true})
+    console.log(updatedData)
     res.status(200).send({ status: true, message: "User profile updated", data: updatedData })
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
@@ -307,10 +399,8 @@ exports.updateUserProfile = async (req, res) => {
 
 //--------------------------GET/USERBYID------------------------------------------------
 
-exports.getUserById = async function (req, res) {
+exports.getUserById = async (req, res) => {
   try {
-
-    const userId = req.params.userId
 
     const userData = await userModel.findOne({ _id: userId }).select({ address: 1, _id: 1, fname: 1, lname: 1, email: 1, profileImage: 1, phone: 1, password: 1 })
 
@@ -320,12 +410,4 @@ exports.getUserById = async function (req, res) {
   catch (err) {
     res.status(500).send({ status: false, message: err.message })
   }
-
 }
-
-
-
-
-
-
-//module.exports = {createUser,loginUser,updateUserProfile,getUserById}
