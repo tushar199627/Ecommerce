@@ -7,8 +7,7 @@ const saltRounds = 10;
 const {isValidObjectId,isValid,isValidRequestBody,validPassword,validCity,validPincode,validName,validPhone,validEmail,
 } = require("../validator/validate");
 
-//-----------------------------------------POST/REGISTER-------------------------------------------
-
+//---------------------------------------------------------------POST/REGISTER----------------------------------------------------------------------------
 exports.createUser = async (req, res) => {
 
   try {
@@ -23,7 +22,7 @@ exports.createUser = async (req, res) => {
     if (!isValid(fname)) {
       return res.status(400).send({status: false, message: "Please provide a FirstName or a Valid FirstName",
       });
-      
+
     }
     if (!validName.test(fname)) {
       return res.status(400).send({ status: false, message: "FirstName cannot be a number" });
