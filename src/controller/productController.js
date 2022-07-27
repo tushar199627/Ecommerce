@@ -29,9 +29,6 @@ const getAllProduct = async function(req, res){
     }
 }
 
-
-
-
 const getById = async(req,res)=>{
     const productId = req.params.productId
 
