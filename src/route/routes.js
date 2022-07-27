@@ -12,6 +12,8 @@ router.get('/user/:userId/profile', middle.authentication, userController.userPr
 
 router.put('/user/:userId/profile', middle.authentication, userController.updateProfile)
 
+router.post('/products', productController.createproduct)
+
 router.get('/products', productController.getAllProduct)
 
 router.get('/products/:productId', productController.getById)
