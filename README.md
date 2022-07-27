@@ -162,6 +162,7 @@
                 "city": "Indore",
                 "pincode": 452010
             }
+          
         },
         "_id": "6162876abdcb70afeeaf9cf5",
         "fname": "Jane",
