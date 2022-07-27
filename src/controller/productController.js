@@ -11,7 +11,7 @@ const isValidBool = function (value) {
     return true;
 }
 
-
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 const createproduct = async function (req, res) {
 
@@ -57,8 +57,6 @@ const createproduct = async function (req, res) {
         if (!validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: 'Please enter installments in only Number' })
     }
 
-    console.log(isFreeShipping)
-
     if ("isFreeShipping" in data) {
         if (!isValidBool(isFreeShipping)) {
             return res.status(400).send({ status: false, message: 'Please enter only true & false' })
@@ -79,9 +77,39 @@ const createproduct = async function (req, res) {
     res.send({ status: true, message: "product create successfully", data: productdata })
 
 }
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+const getAllProduct = async function(req, res){
+    try{
+    const data = req.query
+    let {name, priceGreaterThan, priceLessThan, size, priceSort} = data
+    let filters
+    let searchObj = {isDeleted: false}
+    priceSort = parseInt(priceSort)
+
+    if(size) {
+        size=size.toUpperCase().split(" ")
+        searchObj.availableSizes = {$in : size}
+    }
+    if(name) searchObj.title = { $regex :name.trim(), $options: 'i'}
+    if(priceGreaterThan) searchObj.price = {$gt : priceGreaterThan}
+    if(priceLessThan) searchObj.price = {$lt : priceLessThan}
+    if(priceGreaterThan && priceLessThan) searchObj.price = {$gt : priceGreaterThan, $lt : priceLessThan}
+    if(priceSort) filters ={price : priceSort}
+    if(priceSort>1 || priceSort < -1 || priceSort ==0) return res.status(400).send({status : false, message : 'Please enter either 1 or -1 is priceSort'})
+
+    const products = await productModel.find(searchObj).sort(filters)  
+    return res.status(200).send({status : false, message: "Success", data : products})
+    }
+    catch(err){
+        return res.status(500).send({status : false, message : err.message})
+    }
+}
+
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const getById = async (req, res) => {
+
+const getById = async(req,res)=>{
     const productId = req.params.productId
 
     if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please enter valid productId in params path" })
@@ -92,8 +120,12 @@ const getById = async (req, res) => {
     res.status(200).send({ status: true, message: 'Success', data: checkProduct })
 }
 
+
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const deleteProduct = async (req, res) => {
+
+
+
+const deleteProduct = async(req, res)=>{
     const productId = req.params.productId;
 
     if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please enter valid productId in params path" });
@@ -107,4 +139,5 @@ const deleteProduct = async (req, res) => {
 }
 
 
-module.exports = { createproduct, getById, deleteProduct }
+
+module.exports = { createproduct,getById, deleteProduct, getAllProduct}
