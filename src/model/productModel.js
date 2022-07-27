@@ -9,10 +9,11 @@ const productSchema = new mongoose.Schema({
     isFreeShipping: { type: Boolean, default: false },
     productImage: { type: String, required: true },  // s3 link
     style: { type: String },
-    availableSizes: { type: [String], required: true, enum: ["S", "XS", "M", "X", "L", "XXL", "XL"] },
+    availableSizes: { type: [String], required: true },
     installments: { Type: Number },
     deletedAt: { type: Date },
     isDeleted: { type: Boolean, default: false }
 }, { timestamps: true }, {versionKey: false})
 
 module.exports = mongoose.model('product', productSchema)
+
