@@ -41,17 +41,21 @@ const createProduct = async function (req, res) {
             if (!validator.isValidTitle(style)) return res.status(400).send({ status: false, message: 'Please enter style name in alpha' })
         }
 
-        let availableSize = availableSizes.toUpperCase() //Creating an array
-        availableSize = availableSize.split(",")
-        if (availableSize.length === 0) {
-            return res.status(400).send({ status: false, message: "Please provide product sizes" })
-        }
-        for (let i = 0; i < availableSize.length; i++) {
-            if (!(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(availableSize[i])) {
-                return res.status(400).send({ status: false, message: 'Sizes should be [S,XS,M,X,L,XXL,XL]' })
+        if (availableSizes) {
+            let availableSize = availableSizes.toUpperCase() //Creating an array
+            availableSize = availableSize.split(",")
+            if (availableSize.length === 0) {
+                return res.status(400).send({ status: false, message: "Please provide product sizes" })
             }
+            for (let i = 0; i < availableSize.length; i++) {
+                if (!(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(availableSize[i])) {
+                    return res.status(400).send({ status: false, message: 'Sizes should be [S,XS,M,X,L,XXL,XL]' })
+                }
+            }
+            data.availableSizes = availableSize
+        }else{
+            return res.status(400).send({status: false, message: 'availableSizes  is required'})
         }
-        data.availableSizes = availableSize
 
         if (installments) {
             if (!validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: 'Please enter installments in only Number' })
