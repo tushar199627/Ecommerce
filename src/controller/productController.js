@@ -10,7 +10,10 @@ const getAllProduct = async function(req, res){
     let searchObj = {isDeleted: false}
     priceSort = parseInt(priceSort)
 
-    if(size) searchObj.availableSizes = size
+    if(size) {
+        size=size.toUpperCase().split(" ")
+        searchObj.availableSizes = {$in : size}
+    }
     if(name) searchObj.title = { $regex :name.trim(), $options: 'i'}
     if(priceGreaterThan) searchObj.price = {$gt : priceGreaterThan}
     if(priceLessThan) searchObj.price = {$lt : priceLessThan}
@@ -26,7 +29,7 @@ const getAllProduct = async function(req, res){
     }
 }
 
-//module.exports = {}
+
 
 
 const getById = async(req,res)=>{
@@ -39,6 +42,8 @@ const getById = async(req,res)=>{
 
     res.status(200).send({status: true, message:'Success', data:checkProduct})
 }
+
+
 
 const deleteProduct = async(req, res)=>{
     const productId = req.params.productId;
