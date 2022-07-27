@@ -48,13 +48,19 @@ const userRegister = async function (req, res) {
         //----------[Address Validation]
         let Fulladdress = JSON.parse(address)
         data.address = Fulladdress
+
         if (!Fulladdress.shipping.street) return res.status(400).send({ status: false, message: "Please enter shipping street" })
+
         if (!Fulladdress.shipping.city) return res.status(400).send({ status: false, message: "Please enter shipping city" })
         if (!validator.isValidName(Fulladdress.shipping.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
+
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.shipping.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
+
         if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
+
         if (!Fulladdress.billing.city) return res.status(400).send({ status: false, message: "Please enter billing city" })
         if (!validator.isValidName(Fulladdress.billing.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
+        
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.billing.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
 
         //-----------[Password encryption]
@@ -179,7 +185,7 @@ let updateProfile = async (req, res) => {
             finduser.password = bcryptPassword
         }
 
-        if (files) {  //Update profile image
+        if ("files" in data) {  //Update profile image
             if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
             if (files && files.length > 0) {
                 finduser.profileImage = await uploadFile.uploadFile(files[0])
@@ -226,10 +232,10 @@ let updateProfile = async (req, res) => {
         }
 
         //Authorisation
-        // let tokenUserId = req.decodedToken.userId
-        // if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        // }
+        let tokenUserId = req.decodedToken.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
 
         //Update Profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
