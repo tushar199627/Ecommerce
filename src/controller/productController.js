@@ -43,7 +43,8 @@ const createProduct = async function (req, res) {
         }
 
         if (availableSizes) {
-            let availableSize = availableSizes.toUpperCase() //Creating an array
+            let availableSize = availableSizes.replace(/\s+/g, "")
+            availableSize = availableSize.toUpperCase() //Creating an array
             availableSize = availableSize.split(",")
             if (availableSize.length === 0) {
                 return res.status(400).send({ status: false, message: "Please provide product sizes" })
@@ -70,7 +71,7 @@ const createProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "isFreeshipping must be a Boolean Value" });
             }
         }
-        
+
         // validation for Product image
         if (files.length == 0) return res.status(400).send({ status: false, message: "Please Provide Product Image" })
         if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'Image type should be png|gif|webp|jpeg|jpg' })
