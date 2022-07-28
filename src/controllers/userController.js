@@ -149,10 +149,9 @@ exports.createUser = async (req, res) => {
 
 exports.loginUser = async function (req, res) {
   try {
-    let data = req.body
+    let data = JSON.parse(JSON.stringify(req.body))
     const { email, password } = data
-    console.log(data)
-
+    //console.log(email)
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Please provide login details" });
     }
@@ -165,21 +164,21 @@ exports.loginUser = async function (req, res) {
       return res.status(400).send({ status: false, message: "Password is required" });
     }
 
-    let details = await userModel.findOne({ email:email});
-    
+    let details = await userModel.findOne({ email: email });
+    console.log(details)
     if (!details) {
       return res.status(400).send({ status: false, message: "Invalid credentials" });
     }
 
 
     //create the jwt token 
-
+    console.log(details._id.toString())
     let token = jwt.sign({
       userId: details._id.toString(),
     }, "project5Group46", { expiresIn: "1d" });
 
-  // res.setHeader("Authorization", token)
-  return res.status(200).send({ status: true, message: "User login successfull", data: { userId: user._id, token: token } })
+    res.setHeader("Authorization", token)
+
 
     return res.status(200).send({ status: true, message: "User login successfull", data: { token } })
   }
@@ -187,7 +186,6 @@ exports.loginUser = async function (req, res) {
     return res.status(500).send({ status: false, message: err.message });
   }
 }
-
 
 //+++++++++++++++++++++++++++++ GET /user/:userId/profile +++++++++++++++++++++++++++++++++++++++++++++
 
