@@ -71,7 +71,7 @@ const createProduct = async function (req, res) {
     if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'Image type should be png|gif|webp|jpeg|jpg' })
     data.productImage = await uploadFile.uploadFile(files[0])
 
-    if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate...........' })
+    //if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate...........' })
 
     let productdata = await productModel.create(data)
     res.send({ status: true, message: "product create successfully", data: productdata })
@@ -88,7 +88,7 @@ const getAllProduct = async function(req, res){
     priceSort = parseInt(priceSort)
 
     if(size) {
-        size=size.toUpperCase().split(" ")
+        size=size.toUpperCase().split(",")
         searchObj.availableSizes = {$in : size}
     }
     if(name) searchObj.title = { $regex :name.trim(), $options: 'i'}
@@ -139,6 +139,8 @@ const deleteProduct = async(req, res)=>{
     res.status(200).send({ status: true, message: 'deleted sucessfully' })
 }
 
+
+
 const updateProductDetails = async function (req, res) {
     try {
         const productId = req.params.productId
@@ -155,8 +157,8 @@ const updateProductDetails = async function (req, res) {
         if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
 
         if (image && image.length > 0) {
-            if (!isImageFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
-            let updateProductImage = await uploadFile(image[0])
+            if (!validator.isValidFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
+            let updateProductImage = await uploadFile.uploadFile(image[0])
             updateData.productImage = updateProductImage
         }
 
@@ -179,14 +181,18 @@ const updateProductDetails = async function (req, res) {
         if (availableSizes) {
             if (!validator.isValid(availableSizes)) return res.status(400).send({ status: false, message: "availableSizes Should be Valid" })
             availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (availableSizes.map(x => isValidSize(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be Among  S,XS,M,X,L,XXL,XL" })
+            if (availableSizes.map(x => (["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be Among  S,XS,M,X,L,XXL,XL" })
             updateData.availableSizes = availableSizes
         }
         if (installments) {
             if (validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
+        updateData._id = productId
+        updateData.currencyId = 'INR'
+        updateData.currencyFormat = '₹'
 
-        const updateDetails = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
+        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
+        if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
         return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
     }
     catch (err) {
@@ -197,5 +203,3 @@ const updateProductDetails = async function (req, res) {
 
 
 module.exports = {createProduct, getById, deleteProduct, getAllProduct,updateProductDetails}
-
-//module.exports = { createproduct,getById, deleteProduct, getAllProduct}
