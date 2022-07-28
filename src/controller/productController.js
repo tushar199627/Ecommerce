@@ -22,7 +22,8 @@ const createProduct = async function (req, res) {
 
         if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
-
+        let uniqueTitle = await productModel.findOne({title});
+        if(uniqueTitle) return res.status(400).send({status: true, message: 'the title is already taken'})
 
         if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
         if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
@@ -69,6 +70,7 @@ const createProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "isFreeshipping must be a Boolean Value" });
             }
         }
+        
         // validation for Product image
         if (files.length == 0) return res.status(400).send({ status: false, message: "Please Provide Product Image" })
         if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'Image type should be png|gif|webp|jpeg|jpg' })
@@ -77,7 +79,7 @@ const createProduct = async function (req, res) {
         if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right format' })
 
         let productdata = await productModel.create(data)
-        res.status(201).send({ status: true, message: "product create successfully", data: productdata })
+        res.status(201).send({ status: true, message: "product created successfully", data: productdata })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
