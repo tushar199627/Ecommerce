@@ -25,11 +25,11 @@ let createCart = async (req, res) => {
 
         let findCart
 
-        if("cartId" in req.body){
+        if ("cartId" in req.body) {
             if (!mongoose.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'invalid cartId' })
             findCart = await cartModel.findOne({ _id: cartId })
-            return res.status(404).send({status: false, message: 'cart id does not exists'})
-        }else{
+            return res.status(404).send({ status: false, message: 'cart id does not exists' })
+        } else {
             findCart = await cartModel.findOne({ userId: userId })
         }
 
@@ -39,7 +39,7 @@ let createCart = async (req, res) => {
             return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
         }
 
-        
+
         if (findCart) {
             let alreadyProductsId = findCart.items.map(x => x.productId.toString())
 
@@ -73,11 +73,53 @@ let createCart = async (req, res) => {
 
 
 const getCart = async (req, res) => {
-    let userId = req.params.userId
+    try {
+        let userId = req.params.userId
 
-    if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
-    let user = await userModel.findOne({ _id: userId })
-    if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
+        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
+        let user = await userModel.findOne({ _id: userId })
+        if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
+
+        //Authorisation
+        let tokenUserId = req.decodedToken.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
+
+        let findCart = await cartModel.findOne({ userId })
+        if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
+
+        res.status(200).send({ status: true, message: 'Success', data: findCart })
+
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
+
+const deleteCart = async (req, res) => {
+    try {
+        let userId = req.params.userId
+    
+        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
+        let user = await userModel.findOne({ _id: userId })
+        if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
+    
+        //Authorisation
+        let tokenUserId = req.decodedToken.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
+    
+        let findCart = await cartModel.findOne({ userId })
+        if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
+    
+        const deleteCart = await cartModel.findOneAndUpdate({_id: findCart._id},{items:[], totalPrice:0, totalItems:0}, {new: true})
+    
+        res.status(200).send({status:true, message:'successfully deleted', data:deleteCart})
+        
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 
 
@@ -85,6 +127,4 @@ const getCart = async (req, res) => {
 
 
 
-
-
-module.exports = { createCart }
+module.exports = { createCart, getCart, deleteCart }

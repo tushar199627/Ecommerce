@@ -14,6 +14,6 @@ let cartSchema = new mongoose.Schema({
 
     totalItems: { type: Number, required: true },//"Holds total number of items in the cart"
 
-}, { timestamps: true })
+}, { versionKey: false, timestamps: true })
 
 module.exports = mongoose.model('cart', cartSchema)
