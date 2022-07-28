@@ -159,7 +159,7 @@ const updateProductDetails = async function (req, res) {
         return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
     }
     catch (err) {
-        return res.status(500).send({ status: false, error: err.message })
+        return res.status(500).send({ status: false, error: err.messaitge })
     }
 }
 
