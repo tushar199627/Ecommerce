@@ -151,6 +151,7 @@ exports.loginUser = async function (req, res) {
   try {
     let data = req.body
     const { email, password } = data
+    console.log(data)
 
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Please provide login details" });
@@ -164,7 +165,7 @@ exports.loginUser = async function (req, res) {
       return res.status(400).send({ status: false, message: "Password is required" });
     }
 
-    let details = await userModel.findOne({ email });
+    let details = await userModel.findOne({ email:email});
     
     if (!details) {
       return res.status(400).send({ status: false, message: "Invalid credentials" });

@@ -101,6 +101,66 @@ const getProductDetails = async function (req, res) {
 }
 
 
+//*************************************PUT /products/:productId****************************************************
+
+// const updateProductDetails = async function(req,res){
+//     try{
+//        let data= req.body.data
+//        let Data= JSON.parse(data)
+//        let files=req.files
+//        let productId= req.params.productId
+
+//        let{title, description, price, isFreeShipping, style, availableSizes, installments}=Data
+//        let detailsToBeUpdated={}
+
+//        if(Object.keys(Data))
+
+
+
+
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //**************************************DELETE /products/:productId**********************************************
 
