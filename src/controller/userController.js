@@ -45,20 +45,26 @@ const userRegister = async function (req, res) {
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character[At least One Upper letter, one small letter, one number and one special charater]' })
 
         //----------[Address Validation]
+        if(!address) return res.status(400).send({status: false, message : 'Please enter address'})
         let Fulladdress = JSON.parse(address)
+        let{shipping, billing} = Fulladdress
 
+        if(!shipping) return res.status(400).send({status : false, message : 'Please enter shipping address'})
         if (!Fulladdress.shipping.street) return res.status(400).send({ status: false, message: "Please enter shipping street" })
 
         if (!Fulladdress.shipping.city) return res.status(400).send({ status: false, message: "Please enter shipping city" })
         if (!validator.isValidName(Fulladdress.shipping.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
 
-        if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.shipping.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
+        if (!Fulladdress.shipping.pincode) return res.status(400).send({ status: false, message: "Please enter shipping pincode" })
+        if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.shipping.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in shipping" })
 
+        if(!billing) return res.status(400).send({status : false, message : 'Please enter billing address'})
         if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
 
         if (!Fulladdress.billing.city) return res.status(400).send({ status: false, message: "Please enter billing city" })
         if (!validator.isValidName(Fulladdress.billing.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
         
+        if (!Fulladdress.billing.pincode) return res.status(400).send({ status: false, message: "Please enter billing pincode" })
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.billing.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
 
         data.address = Fulladdress
@@ -116,7 +122,7 @@ const userLogin = async function (req, res) {
 
     res.setHeader("x-api-key", token)
 
-    return res.status(200).send({ status: true, message: 'User Login Successful', data: { userId: Login._id, token: token } })
+    return res.status(200).send({ status: true, message: 'User login successfull', data: { userId: Login._id, token: token } })
 }
 
 
@@ -133,6 +139,11 @@ const userProfile = async function (req, res) {
         const checkUser = await userModel.findById(userId)
         if (!checkUser) return res.status(400).send({ status: false, message: "UserId invalid" })
 
+        let tokenUserId = req.decodedToken.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
+        
         return res.status(200).send({ status: true, message: "User profile details", data: checkUser })
     }
     catch (err) {
@@ -148,8 +159,9 @@ let updateProfile = async (req, res) => {
         let data = req.body;
         let files = req.files;
 
-        let { fname, lname, email, phone, password, address } = data;
+        let { fname, lname, email, phone, password, address, ...rest } = data;
 
+        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
         if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
         let finduser = await userModel.findOne({ _id: userId });
@@ -187,15 +199,10 @@ let updateProfile = async (req, res) => {
             finduser.password = bcryptPassword
         }
 
-        if (files) {  //Update profile image
             if (files && files.length > 0) {
-                finduser.profileImage = await uploadFile.uploadFile(files[0])
                 if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
+                finduser.profileImage = await uploadFile.uploadFile(files[0])
             }
-            else {
-                return res.status(400).send({ status: false, message: "No file found" })
-            }
-        }
 
         if (address) {
             try {
@@ -226,7 +233,6 @@ let updateProfile = async (req, res) => {
                 }
 
                 if ("pincode" in shipping) {
-                    if(!validator.isValid(pincode)) return res.status(400).send({status : false, message : 'Please enter pincode if pincode key is provided in shipping'})
                     if (!(/^[1-9]{1}[0-9]{5}$/).test(pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in shipping" })
                     finduser.address.shipping.pincode = pincode;
                 }
@@ -250,7 +256,6 @@ let updateProfile = async (req, res) => {
                 }
 
                 if ("pincode" in billing) {
-                    if(!validator.isValid(pincode)) return res.status(400).send({status : false, message : 'Please enter pincode if pincode key is provided in billing'})
                     if (!(/^[1-9]{1}[0-9]{5}$/).test(pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
                     finduser.address.billing.pincode = pincode;
                 }
