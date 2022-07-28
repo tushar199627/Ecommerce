@@ -100,7 +100,7 @@ const getAllProduct = async function (req, res) {
         priceSort = parseInt(priceSort)
 
         if (size) {
-            size = size.toUpperCase().split(" ")
+            size = size.toUpperCase().split(",")
             searchObj.availableSizes = { $in: size }
         }
 
@@ -116,8 +116,9 @@ const getAllProduct = async function (req, res) {
         if (priceSort) filters = { price: priceSort }
 
         const products = await productModel.find(searchObj).sort(filters)
+        if(products.length==0) return res.status(404).send({status : false, message : 'No such product'})
 
-        return res.status(200).send({ status: false, message: "Success", data: products })
+        return res.status(200).send({ status: true, message: "Success", data: products })
     }
     catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -183,8 +184,8 @@ const updateProductDetails = async function (req, res) {
         if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
 
         if (image && image.length > 0) {
-            if (!isImageFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
-            let updateProductImage = await uploadFile(image[0])
+            if (!validator.isValidFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
+            let updateProductImage = await uploadFile.uploadFile(image[0])
             updateData.productImage = updateProductImage
         }
 
@@ -208,18 +209,29 @@ const updateProductDetails = async function (req, res) {
         }
 
         if (availableSizes) {
-            if (!validator.isValid(availableSizes)) return res.status(400).send({ status: false, message: "availableSizes Should be Valid" })
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (availableSizes.map(x => isValidSize(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be Among  S,XS,M,X,L,XXL,XL" })
-            updateData.availableSizes = availableSizes
+            let availableSize = availableSizes.replace(/\s+/g, "")
+            availableSize = availableSize.toUpperCase() //Creating an array
+            availableSize = availableSize.split(",")
+            if (availableSize.length === 0) {
+                return res.status(400).send({ status: false, message: "Please provide product sizes" })
+            }
+            for (let i = 0; i < availableSize.length; i++) {
+                if (!(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(availableSize[i])) {
+                    return res.status(400).send({ status: false, message: 'Sizes should be [S,XS,M,X,L,XXL,XL]' })
+                }
+            }
+            updateData.availableSizes = availableSize
         }
 
         if (installments) {
             if (validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
+        updateData._id = productId
+        updateData.currencyId = 'INR'
+        updateData.currencyFormat = '₹'
 
-        const updateDetails = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({ __v: 0 })
-
+        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
+        if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
         return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
     }
     catch (err) {
@@ -227,4 +239,6 @@ const updateProductDetails = async function (req, res) {
     }
 }
 
-module.exports = { createProduct, getById, deleteProduct, getAllProduct, updateProductDetails }
+
+
+module.exports = {createProduct, getById, deleteProduct, getAllProduct,updateProductDetails}
