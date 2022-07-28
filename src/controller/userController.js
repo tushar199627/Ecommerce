@@ -152,7 +152,8 @@ let updateProfile = async (req, res) => {
 
         if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
-        let finduser = await userModel.findOne({ _id: userId });
+        let finduser = await userModel.findById({ _id:userId });
+        console.log(finduser);
         if (!finduser) return res.status(404).send({ status: false, message: 'user id does not exist' });
 
         if (fname) {          //Update first name

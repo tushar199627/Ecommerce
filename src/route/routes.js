@@ -23,6 +23,6 @@ router.put('/products/:productId', productController.updateProductDetails)
 
 router.delete('/products/:productId', productController.deleteProduct)
 
-router.post('/users/:userId/cart ', middle.authentication, cartController.createCart)
+router.post('/users/:userId/cart', middle.authentication, cartController.createCart)
 
 module.exports = router
