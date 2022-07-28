@@ -96,8 +96,10 @@ const userLogin = async function (req, res) {
     let { email, password } = data
 
     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please Enter data" })
+
     if (!email) return res.status(400).send({ status: false, message: 'Please enter email' })
     if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
+
     if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
 
     const Login = await userModel.findOne({ email })
@@ -184,6 +186,7 @@ let updateProfile = async (req, res) => {
             const bcryptPassword = await bcrypt.hash(password, 10)
             finduser.password = bcryptPassword
         }
+
         if (files) {  //Update profile image
             if (files && files.length > 0) {
                 finduser.profileImage = await uploadFile.uploadFile(files[0])
