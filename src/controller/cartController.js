@@ -3,7 +3,7 @@ let userModel = require('../model/userModel')
 let mongoose = require('mongoose')
 const productModel = require('../model/productModel')
 
-
+//----------------------------------------------------------------------------------------------------------------------//
 
 let createCart = async (req, res) => {
     try {
@@ -76,6 +76,7 @@ let createCart = async (req, res) => {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------//
 
 const getCart = async (req, res) => {
     try {
@@ -101,6 +102,7 @@ const getCart = async (req, res) => {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------//
 
 const deleteCart = async (req, res) => {
     try {
