@@ -9,14 +9,17 @@ const createProduct = async function (req, res) {
     let data = req.body
     let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
     let files = req.files
-
+  
     if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
     if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
-
+    const uniqueTitle = await productModel.findOne({title :title})
+    if(uniqueTitle){
+        return res.status(400).send({ status: false, message: 'This product is already available' })
+    }
 
 
     if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
-    if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
+    if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter description in right formate' })
 
     if (!price) return res.status(400).send({ status: false, message: 'Please enter price' })
     if (!validator.isValidNumber(price)) return res.status(400).send({ status: false, message: 'Please enter price in only Number' })
@@ -64,12 +67,12 @@ const createProduct = async function (req, res) {
     }
 
     if (files && files.length > 0) {
-        profileImage = await uploadFile(files[0]);
+        productImage = await uploadFile(files[0]);
     }
 
     // Add profileImage
 
-    data.productImage = profileImage;
+    data.productImage = productImage;
 
 
 
@@ -109,7 +112,7 @@ const getProductByFilter = async (req, res) => {
         }
 
         filter.price = price
-    } console.log(filter)
+    } 
 
 
     const productData = await productModel.find(filter)
@@ -157,7 +160,7 @@ const getProductDetails = async function (req, res) {
         }
 
     }
-    catch (error) {
+    catch (err) {
         res.status(500).send({ status: false, message: err.message });
     }
 }
