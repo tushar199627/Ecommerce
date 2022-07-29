@@ -160,6 +160,7 @@ const deleteProduct = async (req, res) => {
         await productModel.findByIdAndUpdate({ _id: productId }, { isDeleted: true, deletedAt: Date.now() });
 
         res.status(200).send({ status: true, message: 'deleted sucessfully' })
+        
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -226,12 +227,17 @@ const updateProductDetails = async function (req, res) {
         if (installments) {
             if (validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
+
         updateData._id = productId
+
         updateData.currencyId = 'INR'
+
         updateData.currencyFormat = '₹'
 
         const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
+
         if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
+
         return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
     }
     catch (err) {

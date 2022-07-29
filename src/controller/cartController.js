@@ -3,6 +3,8 @@ let userModel = require('../model/userModel')
 let mongoose = require('mongoose')
 const productModel = require('../model/productModel')
 
+
+
 let createCart = async (req, res) => {
     try {
         let userId = req.params.userId
@@ -28,7 +30,7 @@ let createCart = async (req, res) => {
         if ("cartId" in req.body) {
             if (!mongoose.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'invalid cartId' })
             findCart = await cartModel.findOne({ _id: cartId })
-            
+
             return res.status(404).send({ status: false, message: 'cart id does not exists' })
 
         } else {
@@ -46,7 +48,8 @@ let createCart = async (req, res) => {
             let alreadyProductsId = findCart.items.map(x => x.productId.toString())
 
             if (alreadyProductsId.includes(productId)) {
-                let updatedCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: productPrice } }, { new: true })   //positional operator($) is used to increase in array
+                let updatedCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: productPrice } }, { new: true })   
+                //positional operator($) is used to increase in array
 
                 return res.status(201).send({ status: true, message: "Success", data: updatedCart })
 
@@ -97,6 +100,7 @@ const getCart = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+
 
 const deleteCart = async (req, res) => {
     try {

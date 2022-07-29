@@ -46,7 +46,17 @@ const userRegister = async function (req, res) {
 
         //----------[Address Validation]
         if(!address) return res.status(400).send({status: false, message : 'Please enter address'})
-        let Fulladdress = JSON.parse(address)
+
+        let Fulladdress;
+        
+        try {
+            Fulladdress = JSON.parse(address)
+        } catch (err) {
+            if(err){
+            return res.status(400).send({status:false, message:"please enter the address in right format or the pincode should not start with 0"})
+            }
+        }
+
         let{shipping, billing} = Fulladdress
 
         if(!shipping) return res.status(400).send({status : false, message : 'Please enter shipping address'})
@@ -210,7 +220,7 @@ let updateProfile = async (req, res) => {
                 address = JSON.parse(address)
             } catch (err) {
                 if(err){
-                return res.status(400).send({status:false, message:err.message})
+                return res.status(400).send({status:false, message:"please enter the address in right format or the pincode should not start with 0"})
                 }
             }
 
