@@ -18,5 +18,6 @@ const router = express.Router()
  router.get("/products", productController.getProductByFilter)
  router.get("/products/:productId", productController.getProductDetails )
  router.delete("/products/:productId", productController.deleteProduct)
+ router.put("/products/:productId", productController.updateProductDetails)
  
  module.exports = router;

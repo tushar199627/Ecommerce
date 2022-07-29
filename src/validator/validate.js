@@ -27,6 +27,7 @@ let validPassword = function (value) {
 };
 
 
+
 let validCity = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
 let validPincode = /^[1-9][0-9]{5}$/;
 let validName = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
@@ -39,10 +40,15 @@ const isValidBool = function (value) {
   return true;
 }
 
+const isValidSize = (Size) => {
+  let correctSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+  return (correctSize.includes(Size))
+}
+
 const isValidNumber=(price)=>{
   if(/^[0-9]+([.][0-9]+)?$/.test(price))
   return true
 }
 
 
-module.exports = { isValidObjectId,isValid,isValidTitle, isValidBool,isValidRequestBody, validCity, validPincode, validName, validPhone, isValidNumber,validString, validEmail,validPassword};
+module.exports = { isValidObjectId,isValid,isValidTitle, isValidBool,isValidRequestBody, isValidSize,validCity, validPincode, validName, validPhone, isValidNumber,validString, validEmail,validPassword};
