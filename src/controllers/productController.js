@@ -82,7 +82,7 @@ const createProduct = async function (req, res) {
 }
 //*************************************Get product by filter*********************************************************
 
-/*const getProductByFilter = async (req, res) => {
+const getProductByFilter = async (req, res) => {
     const reqBody = req.body
     const { size, name, priceGreaterThan, priceLessThan, priceSort } = reqBody
     const priceSorts = (priceSort || 1)
@@ -105,6 +105,7 @@ const createProduct = async function (req, res) {
         if (priceGreaterThan) {
             price.$gt = 500
         }
+    
 
         filter.price = price
     } console.log(filter)
@@ -128,72 +129,7 @@ const createProduct = async function (req, res) {
 
 
     return res.status(200).send(sortProduct)
-}*/
 
-//******************************************************************************************************* */
-
-const getAllProduct = async function (req, res) {
-    try {
-        const data = req.query
-        let { name, priceGreaterThan, priceLessThan, size, priceSort } = data
-        let filters
-        let searchObj = { isDeleted: false }
-        priceSort = parseInt(priceSort) // convert string into number
-
-        if (size) {
-            size = size.toUpperCase().split(",")
-            searchObj.availableSizes = { $in: size }
-        }
-                                    // matching the name patterns in db
-        if (name) searchObj.title = { $regex: name.trim(), $options: 'i' } 
-                                                            // remove case sensitive
-        if (priceGreaterThan) searchObj.price = { $gt: priceGreaterThan }
-
-        if (priceLessThan) searchObj.price = { $lt: priceLessThan }
-
-        if (priceGreaterThan && priceLessThan) searchObj.price = { $gt: priceGreaterThan, $lt: priceLessThan }
-                // sort into accending / decending
-        if (priceSort > 1 || priceSort < -1 || priceSort == 0) return res.status(400).send({ status: false, message: 'Please enter either 1 or -1 is priceSort' })
-        if (priceSort) filters = { price: priceSort }
-
-        const products = await productModel.find(searchObj).sort(filters)
-        if(products.length==0) return res.status(404).send({status : false, message : 'No such product'})
-
-        return res.status(200).send({ status: true, message: "Success", data: products })
-    }
-    catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
-    }
-}
-//*********************************GET /products/:productId***************************************************************
-
-const getProductDetails = async function (req, res) {
-    try {
-        const productId = req.params.productId
-
-        if (!validator.isValidObjectId(productId)) {
-            return res.status(400).send({
-                status: false, msg: "productId is not a valid objectId"
-            });
-
-        }
-        const productDetails = await productModel.findOne({ _id: productId, isDeleted: false })
-        if (!productDetails) {
-            return res.status(404).send({
-                status: false, msg: "product not exist with this productId"
-            });
-        }
-        else {
-            return res.status(200).send({
-                status: true, msg: "details fetched successfully", data: productDetails
-            })
-        }
-
-    }
-    catch (error) {
-        res.status(500).send({ status: false, message: err.message });
-    }
-}
 
 
 //*************************************PUT /products/:productId****************************************************
@@ -297,5 +233,6 @@ const deleteProduct = async function (req, res) {
         res.status(500).send({ msg: error.message })
     }
  }
+}
 
-module.exports = {createProduct, getAllProduct, getProductDetails, updateProductDetails,deleteProduct}
+module.exports = {createProduct, getAllProduct,getProductByFilter, updateProductDetails,deleteProduct}

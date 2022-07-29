@@ -15,7 +15,7 @@ const router = express.Router()
  //**********************************PRODUCT API****************************************
 
  router.post("/products", productController.createProduct)
- router.get("/products", productController.getAllProduct)
+ router.get("/products", productController.getProductByFilter)
  router.get("/products/:productId", productController.getProductDetails )
  router.delete("/products/:productId", productController.deleteProduct)
  router.put("/products/:productId", productController.updateProductDetails)
