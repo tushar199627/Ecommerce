@@ -110,7 +110,6 @@ const getProductByFilter = async (req, res) => {
         if (priceGreaterThan) {
             price.$gt = 500
         }
-    
 
         filter.price = price
     } 
@@ -134,7 +133,38 @@ const getProductByFilter = async (req, res) => {
 
 
     return res.status(200).send(sortProduct)
+}
 
+
+//*********************************GET /products/:productId***************************************************************
+
+const getProductDetails = async function (req, res) {
+    try {
+        const productId = req.params.productId
+
+        if (!validator.isValidObjectId(productId)) {
+            return res.status(400).send({
+                status: false, msg: "productId is not a valid objectId"
+            });
+
+        }
+        const productDetails = await productModel.findOne({ _id: productId, isDeleted: false })
+        if (!productDetails) {
+            return res.status(404).send({
+                status: false, msg: "product not exist with this productId"
+            });
+        }
+        else {
+            return res.status(200).send({
+                status: true, msg: "details fetched successfully", data: productDetails
+            })
+        }
+
+    }
+    catch (error) {
+        res.status(500).send({ status: false, message: err.message });
+    }
+}
 
 
 //*************************************PUT /products/:productId****************************************************
@@ -239,6 +269,5 @@ const deleteProduct = async function (req, res) {
         res.status(500).send({ msg: error.message })
     }
  }
-}
 
-module.exports = {createProduct, getAllProduct,getProductByFilter, updateProductDetails,deleteProduct}
+module.exports = {createProduct, getProductByFilter, getProductDetails, updateProductDetails,deleteProduct}
