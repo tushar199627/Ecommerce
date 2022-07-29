@@ -225,7 +225,7 @@ const updateProductDetails = async function (req, res) {
         }
 
         if (installments) {
-            if (validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
+            if (!validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
 
         updateData._id = productId
