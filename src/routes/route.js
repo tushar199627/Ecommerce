@@ -10,7 +10,7 @@ const router = express.Router()
  router.post("/login", userController.loginUser)
  router.get("/user/:userId/profile",auth.authentication, userController.getUserById)
  router.put("/user/:userId/profile",auth.authentication, userController.updateUserProfile)
- router.put("/user/:userId/profile", userController.updateUserProfile)
+
 
  //**********************************PRODUCT API****************************************
 
