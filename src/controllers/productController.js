@@ -79,7 +79,7 @@ const createProduct = async function (req, res) {
     if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right format' })
 
     let productdata = await productModel.create(data)
-    res.status(201).send({ status: true, message: "product create successfully", data: productdata })
+    res.status(201).send({ status: true, message: "Success", data: productdata })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -100,15 +100,15 @@ const getProductByFilter = async (req, res) => {
         filter.title = {$regex : name}
     }
     if (size) {
-        filter.availableSizes = size
+        filter.availableSizes = size.toUpperCase()
     }
     if (priceGreaterThan || priceLessThan) {
         const price = {}
         if (priceLessThan) {
-            price.$lt = 2000
+            price.$lt = priceLessThan
         }
         if (priceGreaterThan) {
-            price.$gt = 500
+            price.$gt = priceGreaterThan
         }
 
         filter.price = price
@@ -156,7 +156,7 @@ const getProductDetails = async function (req, res) {
         }
         else {
             return res.status(200).send({
-                status: true, msg: "details fetched successfully", data: productDetails
+                status: true, message: "Success", data: productDetails
             })
         }
 
@@ -259,7 +259,7 @@ const deleteProduct = async function (req, res) {
 
         return res.status(200).send({
             status: true,
-            msg: "product is deleted successfully"
+            msg: "Product deletion is successful"
         })
 
 
