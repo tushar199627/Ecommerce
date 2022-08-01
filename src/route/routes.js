@@ -35,4 +35,6 @@ router.get('/users/:userId/cart', middle.authentication, cartController.getCart)
 
 router.delete('/users/:userId/cart', middle.authentication, cartController.deleteCart)
 
+router.put('/users/:userId/cart', middle.authentication, cartController.updatedCart)
+
 module.exports = router
