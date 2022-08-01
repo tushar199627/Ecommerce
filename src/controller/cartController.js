@@ -3,11 +3,14 @@ let userModel = require('../model/userModel')
 let mongoose = require('mongoose')
 const productModel = require('../model/productModel')
 
+//----------------------------------------------------------------------------------------------------------------------//
+
 let createCart = async (req, res) => {
     try {
         let userId = req.params.userId
         let { cartId, productId } = req.body
 
+        if(Object.keys(req.body).length==0) return res.status(400).send({status : false, message : 'Please enter data [ Product Id ]'})
         if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
         let user = await userModel.findOne({ _id: userId })
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
@@ -36,17 +39,18 @@ let createCart = async (req, res) => {
         }
 
         //Authorisation
-        let tokenUserId = req.decodedToken.userId
-        if (userId != tokenUserId) {
-            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        }
+        // let tokenUserId = req.decodedToken.userId
+        // if (userId != tokenUserId) {
+        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        // }
 
 
         if (findCart) {
             let alreadyProductsId = findCart.items.map(x => x.productId.toString())
 
             if (alreadyProductsId.includes(productId)) {
-                let updatedCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: productPrice } }, { new: true })   //positional operator($) is used to increase in array
+                let updatedCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: productPrice } }, { new: true })   
+                //positional operator($) is used to increase in array
 
                 return res.status(201).send({ status: true, message: "Success", data: updatedCart })
 
@@ -73,6 +77,7 @@ let createCart = async (req, res) => {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------//
 
 const updateCart = async function(req,res){
     try{
@@ -95,10 +100,10 @@ const getCart = async (req, res) => {
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
         //Authorisation
-        let tokenUserId = req.decodedToken.userId
-        if (userId != tokenUserId) {
-            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        }
+        // let tokenUserId = req.decodedToken.userId
+        // if (userId != tokenUserId) {
+        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        // }
 
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
@@ -110,6 +115,7 @@ const getCart = async (req, res) => {
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------//
 
 const deleteCart = async (req, res) => {
     try {
@@ -120,10 +126,10 @@ const deleteCart = async (req, res) => {
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
     
         //Authorisation
-        let tokenUserId = req.decodedToken.userId
-        if (userId != tokenUserId) {
-            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        }
+        // let tokenUserId = req.decodedToken.userId
+        // if (userId != tokenUserId) {
+        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        // }
     
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
