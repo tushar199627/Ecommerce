@@ -9,12 +9,17 @@ const createProduct = async function (req, res) {
     let data = req.body
     let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
     let files = req.files
-
+  
     if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
     if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
+    const uniqueTitle = await productModel.findOne({title :title})
+    if(uniqueTitle){
+        return res.status(400).send({ status: false, message: 'This product is already available' })
+    }
+
 
     if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
-    if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
+    if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter description in right formate' })
 
     if (!price) return res.status(400).send({ status: false, message: 'Please enter price' })
     if (!validator.isValidNumber(price)) return res.status(400).send({ status: false, message: 'Please enter price in only Number' })
@@ -62,19 +67,19 @@ const createProduct = async function (req, res) {
     }
 
     if (files && files.length > 0) {
-        profileImage = await uploadFile(files[0]);
+        productImage = await uploadFile(files[0]);
     }
 
     // Add profileImage
 
-    data.productImage = profileImage;
+    data.productImage = productImage;
 
 
 
     if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right format' })
 
     let productdata = await productModel.create(data)
-    res.status(201).send({ status: true, message: "product create successfully", data: productdata })
+    res.status(201).send({ status: true, message: "Success", data: productdata })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -95,19 +100,19 @@ const getProductByFilter = async (req, res) => {
         filter.title = {$regex : name}
     }
     if (size) {
-        filter.availableSizes = size
+        filter.availableSizes = size.toUpperCase()
     }
     if (priceGreaterThan || priceLessThan) {
         const price = {}
         if (priceLessThan) {
-            price.$lt = 2000
+            price.$lt = priceLessThan
         }
         if (priceGreaterThan) {
-            price.$gt = 500
+            price.$gt = priceGreaterThan
         }
 
         filter.price = price
-    } console.log(filter)
+    } 
 
 
     const productData = await productModel.find(filter)
@@ -151,7 +156,7 @@ const getProductDetails = async function (req, res) {
         }
         else {
             return res.status(200).send({
-                status: true, msg: "details fetched successfully", data: productDetails
+                status: true, message: "Success", data: productDetails
             })
         }
 
@@ -220,6 +225,7 @@ const updateProductDetails = async function (req, res) {
         return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
     }
     catch (err) {
+        res.status(500).send({ status: false, message: err.message });
         return res.status(500).send({ status: false, error: err.message })
     }
 }
@@ -253,7 +259,7 @@ const deleteProduct = async function (req, res) {
 
         return res.status(200).send({
             status: true,
-            msg: "product is deleted successfully"
+            msg: "Product deletion is successful"
         })
 
 
