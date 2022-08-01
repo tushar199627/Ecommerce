@@ -39,7 +39,7 @@ const userRegister = async function (req, res) {
         //----------[Phone Number validation]
         if (!phone) return res.status(400).send({ status: false, message: 'Please enter phone' })
         if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
-
+        
         //----------[Password Validation]
         if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character[At least One Upper letter, one small letter, one number and one special charater]' })

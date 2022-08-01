@@ -27,9 +27,9 @@ let createCart = async (req, res) => {
 
         if ("cartId" in req.body) {
             if (!mongoose.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'invalid cartId' })
-            findCart = await cartModel.findOne({ _id: cartId })
+            findCart = await cartModel.findOne({ _id: cartId, userId })
             
-            return res.status(404).send({ status: false, message: 'cart id does not exists' })
+            if(!findCart) return res.status(404).send({ status: false, message: 'cart id does not exists' })
 
         } else {
             findCart = await cartModel.findOne({ userId: userId })
@@ -74,6 +74,18 @@ let createCart = async (req, res) => {
 }
 
 
+const updateCart = async function(req,res){
+    try{
+        const data = req.body
+        const userId = req.params.userId
+        
+    }
+    catch(err){
+        return res.status(500).send({status : false, message: err.message})
+    }
+}
+
+
 const getCart = async (req, res) => {
     try {
         let userId = req.params.userId
@@ -97,6 +109,7 @@ const getCart = async (req, res) => {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+
 
 const deleteCart = async (req, res) => {
     try {

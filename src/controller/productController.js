@@ -77,7 +77,7 @@ const createProduct = async function (req, res) {
         if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'Image type should be png|gif|webp|jpeg|jpg' })
         data.productImage = await uploadFile.uploadFile(files[0])
 
-        if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right format' })
+        //if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right format' })
 
         let productdata = await productModel.create(data)
         res.status(201).send({ status: true, message: "product created successfully", data: productdata })
@@ -94,11 +94,12 @@ const createProduct = async function (req, res) {
 const getAllProduct = async function (req, res) {
     try {
         const data = req.query
-        let { name, priceGreaterThan, priceLessThan, size, priceSort } = data
+        let { name, priceGreaterThan, priceLessThan, size, priceSort, ...rest } = data
         let filters
         let searchObj = { isDeleted: false }
         priceSort = parseInt(priceSort)
 
+        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't filter on ${Object.keys(rest)} key`})
         if (size) {
             size = size.toUpperCase().split(",")
             searchObj.availableSizes = { $in: size }
@@ -232,7 +233,7 @@ const updateProductDetails = async function (req, res) {
 
         const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
         if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
-        return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
+        return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
     }
     catch (err) {
         return res.status(500).send({ status: false, error: err.message })
