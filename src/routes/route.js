@@ -11,13 +11,13 @@ const router = express.Router()
  router.get("/user/:userId/profile",auth.authentication, userController.getUserById)
  router.put("/user/:userId/profile",auth.authentication, userController.updateUserProfile)
 
-
  //**********************************PRODUCT API****************************************
 
  router.post("/products", productController.createProduct)
- router.get("/products", productController.getProductByFilter)
- router.get("/products/:productId", productController.getProductDetails )
- router.delete("/products/:productId", productController.deleteProduct)
+ router.get("/products", productController.getProductByFilter )
+ router.get("/products/:productId", productController.getProductById)
  router.put("/products/:productId", productController.updateProductDetails)
+ router.delete("/products/:productId", productController.deleteProduct)
+ 
  
  module.exports = router;

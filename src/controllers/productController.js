@@ -131,14 +131,12 @@ const getProductByFilter = async (req, res) => {
         )
     }
 
-
-    return res.status(200).send(sortProduct)
+   return res.status(200).send(sortProduct)
 }
-
 
 //*********************************GET /products/:productId***************************************************************
 
-const getProductDetails = async function (req, res) {
+const getProductById = async function (req, res) {
     try {
         const productId = req.params.productId
 
@@ -175,18 +173,19 @@ const updateProductDetails = async function (req, res) {
         const image = req.files
         const updateData = req.body
 
-        let { title, description, price, style, availableSizes, installments } = updateData
+        if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
+
+        let { title, description, price, style, availableSizes, installments, ...rest } = updateData
+
+        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
 
         if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, msg: "invalid product Id" })
-
         let findProductId = await productModel.findById({ _id: productId, isDeleted: false })
         if (!findProductId) return res.status(404).send({ status: false, msg: "Product not found" })
 
-        if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
-
         if (image && image.length > 0) {
-            if (!isImageFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
-            let updateProductImage = await uploadFile(image[0])
+            if (!validator.isValidFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
+            let updateProductImage = await uploadFile.uploadFile(image[0])
             updateData.productImage = updateProductImage
         }
 
@@ -210,26 +209,41 @@ const updateProductDetails = async function (req, res) {
         }
 
         if (availableSizes) {
-            if (!validator.isValid(availableSizes)) return res.status(400).send({ status: false, message: "availableSizes Should be Valid" })
-            availableSizes = availableSizes.split(",").map(x => x.trim().toUpperCase())
-            if (availableSizes.map(x => validator.isValidSize(x)).filter(x => x === false).length !== 0) return res.status(400).send({ status: false, message: "Size Should be Among  S,XS,M,X,L,XXL,XL" })
-            updateData.availableSizes = availableSizes
+            let availableSize = availableSizes.replace(/\s+/g, "")
+            availableSize = availableSize.toUpperCase() 
+            availableSize = availableSize.split(",")  //Creating an array
+            if (availableSize.length === 0) {
+                return res.status(400).send({ status: false, message: "Please provide product sizes if available sizes key is provided" })
+            }
+            for (let i = 0; i < availableSize.length; i++) {
+                if (!(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(availableSize[i])) {
+                    return res.status(400).send({ status: false, message: 'Sizes should be [S,XS,M,X,L,XXL,XL]' })
+                }
+            }
+            updateData.availableSizes = availableSize
         }
 
         if (installments) {
             if (!validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
 
-        const updateDetails = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({ __v: 0 })
+        updateData._id = productId
 
-        return res.status(200).send({ status: true, message: "User profile updated successfully", data: updateDetails })
+        updateData.currencyId = 'INR'
+
+        updateData.currencyFormat = '₹'
+
+        const updateDetails = await productModel.findOneAndUpdate({ id: productId, isDeleted: false }, updateData, { new: true }).select({_v:0})
+
+        if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
+
+        return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
     }
     catch (err) {
         res.status(500).send({ status: false, message: err.message });
         return res.status(500).send({ status: false, error: err.message })
     }
 }
-
 //***********************************DELETE /products/:productId********************************************
 
 const deleteProduct = async function (req, res) {
@@ -265,9 +279,9 @@ const deleteProduct = async function (req, res) {
 
     }
     catch (error) {
-        console.log(error)
+        //console.log(error)
         res.status(500).send({ msg: error.message })
     }
  }
 
-module.exports = {createProduct, getProductByFilter, getProductDetails, updateProductDetails,deleteProduct}
+module.exports = {createProduct, getProductByFilter, getProductById ,updateProductDetails,deleteProduct}
