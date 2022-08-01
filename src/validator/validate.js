@@ -28,6 +28,7 @@ let validPassword = function (value) {
 
 
 
+
 let validCity = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
 let validPincode = /^[1-9][0-9]{5}$/;
 let validName = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
