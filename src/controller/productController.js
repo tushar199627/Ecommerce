@@ -5,12 +5,6 @@ const uploadFile = require('../aws/uploadFile')
 const { default: mongoose } = require('mongoose')
 
 
-// const isValidBool = function (value) {
-//     if (!value || typeof value != "string" || value.trim().length == 0) return false;
-//     return true;
-// }
-
-
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 

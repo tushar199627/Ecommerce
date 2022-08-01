@@ -273,12 +273,6 @@ let updateProfile = async (req, res) => {
             }
         }
 
-        //Authorisation
-        // let tokenUserId = req.decodedToken.userId
-        // if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        // }
-
         //Update Profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
 
@@ -290,6 +284,4 @@ let updateProfile = async (req, res) => {
     }
 }
 
-
 module.exports = { userRegister, userLogin, updateProfile, userProfile }
-

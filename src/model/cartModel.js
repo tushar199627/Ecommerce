@@ -5,6 +5,9 @@ let cartSchema = new mongoose.Schema({
     userId: { type: ObjectId, ref: "user", required: true, unique: true },
 
     items: [{
+
+        _id: false,
+
         productId: { type: ObjectId, ref: "product", required: true },
 
         quantity: { type: Number, required: true, min: 1 }
