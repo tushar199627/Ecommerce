@@ -5,10 +5,10 @@ const uploadFile = require('../aws/uploadFile')
 const { default: mongoose } = require('mongoose')
 
 
-const isValidBool = function (value) {
-    if (!value || typeof value != "string" || value.trim().length == 0) return false;
-    return true;
-}
+// const isValidBool = function (value) {
+//     if (!value || typeof value != "string" || value.trim().length == 0) return false;
+//     return true;
+// }
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -23,7 +23,7 @@ const createProduct = async function (req, res) {
         if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
         let uniqueTitle = await productModel.findOne({title});
-        if(uniqueTitle) return res.status(400).send({status: true, message: 'the title is already taken'})
+        if(uniqueTitle) return res.status(400).send({status: false, message: 'the title is already taken'})
 
         if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
         if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter description name in right formate' })
@@ -39,13 +39,13 @@ const createProduct = async function (req, res) {
 
         if (style) {
             if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate' })
-            if (!validator.isValidTitle(style)) return res.status(400).send({ status: false, message: 'Please enter style name in alpha' })
+            if (!validator.isValidTitle(style)) return res.status(400).send({ status: false, message: 'Please enter style name in alphabets only' })
         }
 
         if (availableSizes) {
             let availableSize = availableSizes.replace(/\s+/g, "")
-            availableSize = availableSize.toUpperCase() //Creating an array
-            availableSize = availableSize.split(",")
+            availableSize = availableSize.toUpperCase() 
+            availableSize = availableSize.split(",")  //Creating an array
             if (availableSize.length === 0) {
                 return res.status(400).send({ status: false, message: "Please provide product sizes" })
             }
@@ -64,9 +64,6 @@ const createProduct = async function (req, res) {
         }
 
         if ("isFreeShipping" in data) {
-            if (!isValidBool(isFreeShipping)) {
-                return res.status(400).send({ status: false, message: 'Please enter only true & false' })
-            }
             if (!['true', 'false'].includes(isFreeShipping)) {
                 return res.status(400).send({ status: false, message: "isFreeshipping must be a Boolean Value" });
             }
@@ -100,6 +97,7 @@ const getAllProduct = async function (req, res) {
         let searchObj = { isDeleted: false }
         priceSort = parseInt(priceSort)
 
+        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't filter on ${Object.keys(rest)} key`})
         if (size) {
             size = size.toUpperCase().split(",")
             searchObj.availableSizes = { $in: size }
@@ -140,6 +138,7 @@ const getById = async (req, res) => {
         if (!checkProduct) return res.status(404).send({ status: false, message: "productId invalid or the product is deleted" })
 
         res.status(200).send({ status: true, message: 'Success', data: checkProduct })
+
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -176,16 +175,15 @@ const updateProductDetails = async function (req, res) {
         const image = req.files
         const updateData = req.body
 
+        if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
+
         let { title, description, price, style, availableSizes, installments, ...rest } = updateData
 
         if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
 
         if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, msg: "invalid product Id" })
-
         let findProductId = await productModel.findById({ _id: productId, isDeleted: false })
         if (!findProductId) return res.status(404).send({ status: false, msg: "Product not found" })
-
-        if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
 
         if (image && image.length > 0) {
             if (!validator.isValidFile(image[0].originalname)) return res.status(400).send({ status: false, message: "Please provide image only" })
@@ -214,10 +212,10 @@ const updateProductDetails = async function (req, res) {
 
         if (availableSizes) {
             let availableSize = availableSizes.replace(/\s+/g, "")
-            availableSize = availableSize.toUpperCase() //Creating an array
-            availableSize = availableSize.split(",")
+            availableSize = availableSize.toUpperCase() 
+            availableSize = availableSize.split(",")  //Creating an array
             if (availableSize.length === 0) {
-                return res.status(400).send({ status: false, message: "Please provide product sizes" })
+                return res.status(400).send({ status: false, message: "Please provide product sizes if available sizes key is provided" })
             }
             for (let i = 0; i < availableSize.length; i++) {
                 if (!(["S", "XS", "M", "X", "L", "XXL", "XL"]).includes(availableSize[i])) {
@@ -240,7 +238,6 @@ const updateProductDetails = async function (req, res) {
         const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
 
         if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
-
         return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
     }
     catch (err) {
