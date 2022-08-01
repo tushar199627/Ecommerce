@@ -163,11 +163,19 @@ exports.loginUser = async function (req, res) {
     if (!isValid(password)) {
       return res.status(400).send({ status: false, message: "Password is required" });
     }
+    if(!validPassword(password)){
+      return res.status(400).send({ status: false, message: "Password should be between 8 to 15 characters" });
+    }
 
+    
     let details = await userModel.findOne({ email: email });
-    console.log(details)
     if (!details) {
-      return res.status(400).send({ status: false, message: "Invalid credentials" });
+      return res.status(400).send({ status: false, message: "Email not Exist" });
+    }
+
+    let decypt= await bcrypt.compare(password, details.password )
+    if(!decypt){
+      return res.status(400).send({ status: false, message: "Password is Wrong" });
     }
 
 
