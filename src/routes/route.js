@@ -21,7 +21,7 @@ const router = express.Router()
  router.delete("/products/:productId", productController.deleteProduct)
 
  //**********************************CART API**************************
-
+ //router.post("/users/:userId/cart", cartController.createCart)
  router.post("/users/:userId/cart", cartController.getCartDetails)
  router.get("/users/:userId/cart", cartController.deleteCart)
  

@@ -260,7 +260,7 @@ Send [form-data](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
     quantity: {number, mandatory, min 1}
   }],
   totalPrice: {number, mandatory, comment: "Holds total price of all the items in the cart"},
-  totalItems: {number, mandatory, comment: "Holds total number of items in the cart"},
+  totalItems: {number, m0andatory, comment: "Holds total number of items in the cart"},
   createdAt: {timestamp},
   updatedAt: {timestamp},
 }
