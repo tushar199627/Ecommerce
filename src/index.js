@@ -18,12 +18,12 @@ mongoose
       useNewUrlParser: true,
     }
   )
-  .then(() => console.log("MongoDB bhi chahiye "))
+  .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log(err.message));
 
 
 app.use("/", route);
 
 app.listen(process.env.PORT || 3000, function () {
-  console.log("Bhai ruko zara! lo " + (process.env.PORT || 3000)+" pe start kardiya!");
+  console.log("Port running on " + (process.env.PORT || 3000));
 });

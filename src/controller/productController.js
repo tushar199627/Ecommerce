@@ -5,10 +5,10 @@ const uploadFile = require('../aws/uploadFile')
 const { default: mongoose } = require('mongoose')
 
 
-const isValidBool = function (value) {
-    if (!value || typeof value != "string" || value.trim().length == 0) return false;
-    return true;
-}
+// const isValidBool = function (value) {
+//     if (!value || typeof value != "string" || value.trim().length == 0) return false;
+//     return true;
+// }
 
 
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -97,6 +97,7 @@ const getAllProduct = async function (req, res) {
         let searchObj = { isDeleted: false }
         priceSort = parseInt(priceSort)
 
+        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't filter on ${Object.keys(rest)} key`})
         if (size) {
             size = size.toUpperCase().split(",")
             searchObj.availableSizes = { $in: size }
@@ -237,7 +238,6 @@ const updateProductDetails = async function (req, res) {
         const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
 
         if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
-
         return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
     }
     catch (err) {

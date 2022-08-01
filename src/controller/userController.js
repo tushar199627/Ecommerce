@@ -39,7 +39,7 @@ const userRegister = async function (req, res) {
         //----------[Phone Number validation]
         if (!phone) return res.status(400).send({ status: false, message: 'Please enter phone' })
         if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
-
+        
         //----------[Password Validation]
         if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character[At least One Upper letter, one small letter, one number and one special charater]' })
@@ -274,10 +274,10 @@ let updateProfile = async (req, res) => {
         }
 
         //Authorisation
-        let tokenUserId = req.decodedToken.userId
-        if (userId != tokenUserId) {
-            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        }
+        // let tokenUserId = req.decodedToken.userId
+        // if (userId != tokenUserId) {
+        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        // }
 
         //Update Profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
