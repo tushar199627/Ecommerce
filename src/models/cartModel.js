@@ -24,8 +24,8 @@ const cartSchema = new mongoose.Schema({
     },
 
 }],
-  totalPrice: {type: number,required: true,trim: true},
-  totalItems: {type: number,required: true,trim: true},
+  totalPrice: {type: Number,required: true,trim: true},
+  totalItems: {type: Number,required: true,trim: true},
 },{timestamps: true});
 
 module.exports = mongoose.model('Cart', cartSchema); 
