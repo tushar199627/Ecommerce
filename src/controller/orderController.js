@@ -32,12 +32,14 @@ const orderCreat = async function(req,res){
             if(!["pending", "completed", "cancelled"].includes(data.status)) return res.status(400).send({status : false, message : "Status should be only pending, completed, cancled"})
         }
 
-        let checkUserId = await userModel.findById(userId)
-        if(!checkUserId) return res.status(404).send({status : false, message : `${userId} Invalid userId`})
+        // let checkUserId = await userModel.findById(userId)
+        // if(!checkUserId) return res.status(404).send({status : false, message : `${userId} Invalid userId`})
 
-        let checkCartId = await cartModel.findById(cartId).select({_id : 0, userId : 0, createdAt : 0, updatedAt : 0})
+        let checkCartId = await cartModel.findById(cartId).select({_id : 0, createdAt : 0, updatedAt : 0})
         if(!checkCartId) return res.status(404).send({status : false, message : 'cartId not found'})
         let { items, totalPrice, totalItems} = checkCartId
+
+        if(checkCartId.userId != userId) return res.status(403).send({status : false, message : "UnAuthorized Access!!"})
 
         if(!items || items.length==0) return res.status(400).send({status : false, message : "Cart don't have any product"})
         let enterData = checkCartId.toObject()
@@ -45,7 +47,7 @@ const orderCreat = async function(req,res){
         items.map(x => enterData.totalQuantity+= x.quantity)
         enterData.cancellable = cancellable
         enterData.status =  data.status
-        enterData.userId = userId
+        //enterData.userId = userId
         //console.log(enterData.totalQuantity,enterData)
         // for(let i = 0 ;i<items.length;i++){
         //     if(typeof items[i]['productId'] != 'string') return res.status(400).send({status : false, message : `You shoulde enter ${items[i].productId} productId in string`})
