@@ -10,11 +10,12 @@ const { isValidObjectId, isValid, isValidRequestBody, validPassword, validCity, 
 
 let createUser = async (req, res) => {
 
-  try {
+  // try {
     let data = req.body;
 
     let { fname, lname, email, profileImage, phone, password } = data;
 
+    
     if (!isValidRequestBody(data)) {
       //validating is there any data inside request body
       return res.status(400).send({ status: false, message: "Please provide the Details" });
@@ -46,7 +47,7 @@ let createUser = async (req, res) => {
 
     let isAlreadyExistEmail = await userModel.findOne({ email: email });
     if (isAlreadyExistEmail) {
-      return res.status(400).send({ status: false, message: `this email id -${email} already exist` });
+      return res.status(400).send({ status: false, message: `this email id- ${email} already exist` });
     }
 
     if (!isValid(phone)) {
@@ -54,7 +55,7 @@ let createUser = async (req, res) => {
     }
 
     if (!validPhone.test(phone)) {
-      return res.status(400).send({ status: false, message: `this phone number-${phone} is not valid, try an Indian Number` });
+      return res.status(400).send({ status: false, message: `this phone number- ${phone} is not valid, try an Indian Number` });
     }
 
     //checking is there same phone number present inside database or not
@@ -146,9 +147,9 @@ let createUser = async (req, res) => {
     const userCreated = await userModel.create(data);
 
     return res.status(201).send({ status: true, msg: "User Created Successfully", data: userCreated });
-  } catch (error) {
-    res.status(500).send({ status: false, message: error.message });
-  }
+  // } catch (error) {
+  //   res.status(500).send({ status: false, message: error.message });
+  // }
 };
 
 //***************************************POST/LOGIN************************************************************
