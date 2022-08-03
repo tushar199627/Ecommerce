@@ -1,5 +1,4 @@
 let cartModel = require('../model/cartModel')
-let userModel = require('../model/userModel')
 let productModel = require('../model/productModel')
 let mongoose = require('mongoose')
 let validator = require('../validation/validator')
@@ -100,7 +99,7 @@ const deleteCart = async (req, res) => {
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
 
-        if(findCart.totalItems == 0) return res.status(404).send({ status: false, message: 'Item already daleted' })
+        if (findCart.totalItems == 0) return res.status(404).send({ status: false, message: 'Item already daleted' })
         const deleteCart = await cartModel.findOneAndUpdate({ _id: findCart._id }, { items: [], totalPrice: 0, totalItems: 0 }, { new: true })
 
         res.status(204).send({ status: true, message: 'successfully deleted', data: deleteCart })
@@ -120,7 +119,7 @@ const updatedCart = async (req, res) => {
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: 'please enter data to update' })
 
 
-        if(!cartId) return res.status(400).send({ status: false, message: 'please enter cartId ' })
+        if (!cartId) return res.status(400).send({ status: false, message: 'please enter cartId ' })
         if (typeof cartId != "string") return res.status(400).send({ status: false, message: 'cartId should be string' })
 
         if (!validator.isValid(cartId)) return res.status(400).send({ status: false, message: 'cart Id should not be empty' })
@@ -139,7 +138,7 @@ const updatedCart = async (req, res) => {
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if(!removeProduct)  return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
+        if (!removeProduct) return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
         if (!validator.isValid(removeProduct)) return res.status(400).send({ status: false, message: 'removeProduct should not be empty' })
 
         if (!(removeProduct === 0 || removeProduct === 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0 in the number Format' })

@@ -2,7 +2,7 @@ let mongoose = require('mongoose')
 let ObjectId = mongoose.Schema.Types.ObjectId
 
 let cartSchema = new mongoose.Schema({
-    
+
     userId: { type: ObjectId, ref: "user", required: true, unique: true },
 
     items: [{

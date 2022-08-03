@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 let ObjectId = mongoose.Schema.Types.ObjectId
 
 const orderSchema = new mongoose.Schema({
+
     userId: { type: ObjectId, ref: 'user', require: true },
 
     items: [{
@@ -27,4 +28,4 @@ const orderSchema = new mongoose.Schema({
 
 }, { versionKey: false, timestamps: true })
 
-module.exports = mongoose.model("order",orderSchema)
+module.exports = mongoose.model("order", orderSchema)

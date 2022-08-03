@@ -39,27 +39,27 @@ const userRegister = async function (req, res) {
         //----------[Phone Number validation]
         if (!phone) return res.status(400).send({ status: false, message: 'Please enter phone' })
         if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
-        
+
         //----------[Password Validation]
         if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character[At least One Upper letter, one small letter, one number and one special charater]' })
 
         //----------[Address Validation]
-        if(!address) return res.status(400).send({status: false, message : 'Please enter address'})
+        if (!address) return res.status(400).send({ status: false, message: 'Please enter address' })
 
         let Fulladdress;
-        
+
         try {
             Fulladdress = JSON.parse(address)
         } catch (err) {
-            if(err){
-            return res.status(400).send({status:false, message:"please enter the address in right format or the pincode should not start with 0"})
+            if (err) {
+                return res.status(400).send({ status: false, message: "please enter the address in right format or the pincode should not start with 0" })
             }
         }
 
-        let{shipping, billing} = Fulladdress
+        let { shipping, billing } = Fulladdress
 
-        if(!shipping) return res.status(400).send({status : false, message : 'Please enter shipping address'})
+        if (!shipping) return res.status(400).send({ status: false, message: 'Please enter shipping address' })
         if (!Fulladdress.shipping.street) return res.status(400).send({ status: false, message: "Please enter shipping street" })
 
         if (!Fulladdress.shipping.city) return res.status(400).send({ status: false, message: "Please enter shipping city" })
@@ -68,12 +68,12 @@ const userRegister = async function (req, res) {
         if (!Fulladdress.shipping.pincode) return res.status(400).send({ status: false, message: "Please enter shipping pincode" })
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.shipping.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in shipping" })
 
-        if(!billing) return res.status(400).send({status : false, message : 'Please enter billing address'})
+        if (!billing) return res.status(400).send({ status: false, message: 'Please enter billing address' })
         if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
 
         if (!Fulladdress.billing.city) return res.status(400).send({ status: false, message: "Please enter billing city" })
         if (!validator.isValidName(Fulladdress.billing.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
-        
+
         if (!Fulladdress.billing.pincode) return res.status(400).send({ status: false, message: "Please enter billing pincode" })
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.billing.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in billing" })
 
@@ -153,7 +153,7 @@ const userProfile = async function (req, res) {
         if (userId != tokenUserId) {
             return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
         }
-        
+
         return res.status(200).send({ status: true, message: "User profile details", data: checkUser })
     }
     catch (err) {
@@ -171,11 +171,11 @@ let updateProfile = async (req, res) => {
 
         let { fname, lname, email, phone, password, address, ...rest } = data;
 
-        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: `you can't update on ${Object.keys(rest)} key` })
 
         if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
-        let finduser = await userModel.findOne({ _id:userId });
+        let finduser = await userModel.findOne({ _id: userId });
         if (!finduser) return res.status(404).send({ status: false, message: 'user id does not exist' });
 
         if (fname) {          //Update first name
@@ -210,17 +210,17 @@ let updateProfile = async (req, res) => {
             finduser.password = bcryptPassword
         }
 
-            if (files && files.length > 0) {
-                if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
-                finduser.profileImage = await uploadFile.uploadFile(files[0])
-            }
+        if (files && files.length > 0) {
+            if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
+            finduser.profileImage = await uploadFile.uploadFile(files[0])
+        }
 
         if (address) {
             try {
                 address = JSON.parse(address)
             } catch (err) {
-                if(err){
-                return res.status(400).send({status:false, message:"please enter the address in right format or the pincode should not start with 0"})
+                if (err) {
+                    return res.status(400).send({ status: false, message: "please enter the address in right format or the pincode should not start with 0" })
                 }
             }
 
@@ -228,18 +228,18 @@ let updateProfile = async (req, res) => {
 
             if ("shipping" in address) {                   //Update shipping address  
 
-                if(Object.keys(shipping).length==0) return res.status(400).send({status:false, message:'if shipping given please provide data to update'})
-                
+                if (Object.keys(shipping).length == 0) return res.status(400).send({ status: false, message: 'if shipping given please provide data to update' })
+
                 let { street, city, pincode } = shipping;
 
                 if ("street" in shipping) {
-                    if(!validator.isValid(street)) return res.status(400).send({status : false, message : 'Please enter street if street key is provided in shipping'})
+                    if (!validator.isValid(street)) return res.status(400).send({ status: false, message: 'Please enter street if street key is provided in shipping' })
                     finduser.address.shipping.street = street;
                 }
 
                 if ("city" in shipping) {
-                    if(!validator.isValid(city)) return res.status(400).send({status : false, message : 'Please enter city if city key is provided in shipping'})
-                    if(!validator.isValidName(city)) return res.status(400).send({status : false, message : 'Please enter a valid city name'})
+                    if (!validator.isValid(city)) return res.status(400).send({ status: false, message: 'Please enter city if city key is provided in shipping' })
+                    if (!validator.isValidName(city)) return res.status(400).send({ status: false, message: 'Please enter a valid city name' })
                     finduser.address.shipping.city = city;
                 }
 
@@ -251,18 +251,18 @@ let updateProfile = async (req, res) => {
 
             if ("billing" in address) {                //Update billing address
 
-                if(Object.keys(billing).length==0) return res.status(400).send({status:false, message:'if billing given please provide data to update'})
+                if (Object.keys(billing).length == 0) return res.status(400).send({ status: false, message: 'if billing given please provide data to update' })
 
                 let { street, city, pincode } = billing;
 
                 if ("street" in billing) {
-                    if(!validator.isValid(street)) return res.status(400).send({status : false, message : 'Please enter street if street key is provided in billing'})
+                    if (!validator.isValid(street)) return res.status(400).send({ status: false, message: 'Please enter street if street key is provided in billing' })
                     finduser.address.billing.street = street;
                 }
 
                 if ("city" in billing) {
-                    if(!validator.isValid(city)) return res.status(400).send({status : false, message : 'Please enter city if key city is provided in billing'})
-                    if(!validator.isValidName(city)) return res.status(400).send({status : false, message : 'Please enter a valid city name in billing'})
+                    if (!validator.isValid(city)) return res.status(400).send({ status: false, message: 'Please enter city if key city is provided in billing' })
+                    if (!validator.isValidName(city)) return res.status(400).send({ status: false, message: 'Please enter a valid city name in billing' })
                     finduser.address.billing.city = city;
                 }
 

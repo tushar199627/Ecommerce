@@ -35,7 +35,7 @@ router.post('/users/:userId/cart', middle.authentication, middle.authorization, 
 
 router.get('/users/:userId/cart', middle.authentication, middle.authorization, cartController.getCart)
 
-router.put('/users/:userId/cart', middle.authentication,middle.authorization, cartController.updatedCart)
+router.put('/users/:userId/cart', middle.authentication, middle.authorization, cartController.updatedCart)
 
 router.delete('/users/:userId/cart', middle.authentication, middle.authorization, cartController.deleteCart)
 

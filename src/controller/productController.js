@@ -14,13 +14,13 @@ const createProduct = async function (req, res) {
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
         let files = req.files
 
-      
+
         if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
-        data.title=title.split(' ').filter(s => s).join(' ')
-        
-        let uniqueTitle = await productModel.findOne({title});
-        if(uniqueTitle) return res.status(400).send({status: false, message: 'the title is already taken'})
+        data.title = title.split(' ').filter(s => s).join(' ')
+
+        let uniqueTitle = await productModel.findOne({ title });
+        if (uniqueTitle) return res.status(400).send({ status: false, message: 'the title is already taken' })
 
         if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
         if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter description name in right formate' })
@@ -41,7 +41,7 @@ const createProduct = async function (req, res) {
 
         if (availableSizes) {
             let availableSize = availableSizes.replace(/\s+/g, "")
-            availableSize = availableSize.toUpperCase() 
+            availableSize = availableSize.toUpperCase()
             availableSize = availableSize.split(",")  //Creating an array
             if (availableSize.length === 0) {
                 return res.status(400).send({ status: false, message: "Please provide product sizes" })
@@ -52,8 +52,8 @@ const createProduct = async function (req, res) {
                 }
             }
             data.availableSizes = availableSize
-        }else{
-            return res.status(400).send({status: false, message: 'availableSizes  is required'})
+        } else {
+            return res.status(400).send({ status: false, message: 'availableSizes  is required' })
         }
 
         if (installments) {
@@ -88,13 +88,13 @@ const getAllProduct = async function (req, res) {
         const data = req.query
         let { name, priceGreaterThan, priceLessThan, size, priceSort, ...rest } = data
 
-        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
-        
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: `you can't update on ${Object.keys(rest)} key` })
+
         let filters
         let searchObj = { isDeleted: false }
         priceSort = parseInt(priceSort)
 
-        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't filter on ${Object.keys(rest)} key`})
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: `you can't filter on ${Object.keys(rest)} key` })
         if (size) {
             size = size.toUpperCase().split(",")
             searchObj.availableSizes = { $in: size }
@@ -112,7 +112,7 @@ const getAllProduct = async function (req, res) {
         if (priceSort) filters = { price: priceSort }
 
         const products = await productModel.find(searchObj).sort(filters)
-        if(products.length==0) return res.status(404).send({status : false, message : 'No such product'})
+        if (products.length == 0) return res.status(404).send({ status: false, message: 'No such product' })
 
         return res.status(200).send({ status: true, message: "Success", data: products })
     }
@@ -157,7 +157,7 @@ const deleteProduct = async (req, res) => {
         await productModel.findByIdAndUpdate({ _id: productId }, { isDeleted: true, deletedAt: Date.now() });
 
         res.status(200).send({ status: true, message: 'deleted sucessfully' })
-        
+
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
     }
@@ -176,7 +176,7 @@ const updateProductDetails = async function (req, res) {
 
         let { title, description, price, style, availableSizes, installments, ...rest } = updateData
 
-        if(Object.keys(rest).length>0) return res.status(400).send({status : false, message : `you can't update on ${Object.keys(rest)} key`})
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: `you can't update on ${Object.keys(rest)} key` })
 
         if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, msg: "invalid product Id" })
         let findProductId = await productModel.findById({ _id: productId, isDeleted: false })
@@ -209,7 +209,7 @@ const updateProductDetails = async function (req, res) {
 
         if (availableSizes) {
             let availableSize = availableSizes.replace(/\s+/g, "")
-            availableSize = availableSize.toUpperCase() 
+            availableSize = availableSize.toUpperCase()
             availableSize = availableSize.split(",")  //Creating an array
             if (availableSize.length === 0) {
                 return res.status(400).send({ status: false, message: "Please provide product sizes if available sizes key is provided" })
@@ -232,9 +232,9 @@ const updateProductDetails = async function (req, res) {
 
         updateData.currencyFormat = '₹'
 
-        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({__v:0})
+        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({ __v: 0 })
 
-        if(!updateDetails) return res.status(404).send({status : false, message: 'No such product available'})
+        if (!updateDetails) return res.status(404).send({ status: false, message: 'No such product available' })
         return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
     }
     catch (err) {
@@ -244,4 +244,4 @@ const updateProductDetails = async function (req, res) {
 
 
 
-module.exports = {createProduct, getById, deleteProduct, getAllProduct,updateProductDetails}
+module.exports = { createProduct, getById, deleteProduct, getAllProduct, updateProductDetails }
