@@ -51,7 +51,7 @@ let createCart = async (req, res) => {
             } else {
                 let updatedCart = await cartModel.findOneAndUpdate({ userId: userId }, { $push: { items: productDetails }, $inc: { totalItems: 1, totalPrice: productPrice } }, { new: true })
 
-                return res.status(201).send({ status: true, message: "Success", data: updatedCart })
+                return res.status(201).send({ status: true, message: "Success", data: updatedCart })//status code 200
             }
         }
 
@@ -139,7 +139,8 @@ const updatedCart = async (req, res) => {
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!(removeProduct == 0 || removeProduct == 1)) return res.status(400).send({ status: true, message: 'removeProduct value should be either 1 or 0' })
+        if(!removeProduct) return res.status(400).send({status: false, message:'removeProduct is required'})
+        if (!(removeProduct == 0 || removeProduct == 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0' })
 
         for (let i = 0; i < itemsOfCart.length; i++) {
             if (itemsOfCart[i].productId == productId) {
