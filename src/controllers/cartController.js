@@ -40,10 +40,10 @@ let createCart = async (req, res) => {
         }
 
         //Authorisation
-        // let tokenUserId = req.decodedToken.userId
-        // if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        // }
+        let tokenUserId = req.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
 
 
         if (findCart) {
@@ -51,7 +51,7 @@ let createCart = async (req, res) => {
 
             if (alreadyProductsId.includes(productId)) {
                 let updatedCart = await cartModel.findOneAndUpdate({ "items.productId": productId, userId: userId }, { $inc: { "items.$.quantity": 1, totalPrice: productPrice } }, { new: true })
-                //positional operator($) is used to increase in array
+               
 
                 return res.status(201).send({ status: true, message: "Success", data: updatedCart })
 
@@ -80,7 +80,7 @@ let createCart = async (req, res) => {
 //**************PUT /users/:userId/cart **************** */
 
 const updatedCart = async (req, res) => {
-    // try {
+    try {
         let userId = req.params.userId;
         console.log(userId)
         let data = req.body;
@@ -93,10 +93,10 @@ const updatedCart = async (req, res) => {
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
          //Authorisation
-        //  let tokenUserId = req.decodedToken.userId
-        //  if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        //  }
+         let tokenUserId = req.userId
+         if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+         }
 
         if (!(validator.isValidObjectId(productId))) return res.status(400).send({ status: false, message: 'please enter valid product id' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
@@ -135,9 +135,9 @@ const updatedCart = async (req, res) => {
                 return res.status(404).send({ status: false, message: 'please add the item in the cart first and then update' })
             }
         }
-    // } catch (err) {
-    //     return res.status(500).send({ status: false, message: err.message })
-    // }
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
 }
 //***************GET /users/:userId/cart*****************
 
@@ -150,10 +150,10 @@ const getCartDetails = async (req, res) => {
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
         //Authorisation
-        // let tokenUserId = req.decodedToken.userId
-        // if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        // }
+        let tokenUserId = req.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
 
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
@@ -175,10 +175,10 @@ const deleteCart = async (req, res) => {
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
         //Authorisation
-        // let tokenUserId = req.decodedToken.userId
-        // if (userId != tokenUserId) {
-        //     return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
-        // }
+        let tokenUserId = req.userId
+        if (userId != tokenUserId) {
+            return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
+        }
     
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })

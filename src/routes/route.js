@@ -26,10 +26,10 @@ const router = express.Router()
 
  //**********************************CART API**************************
  
- router.post("/users/:userId/cart", cartController.createCart)
- router.put("/users/:userId/cart", cartController.updatedCart)
- router.get("/users/:userId/cart", cartController.getCartDetails)
- router.delete("/users/:userId/cart", cartController.deleteCart)
+ router.post("/users/:userId/cart",auth.authentication, cartController.createCart)
+ router.put("/users/:userId/cart",auth.authentication, cartController.updatedCart)
+ router.get("/users/:userId/cart",auth.authentication, cartController.getCartDetails)
+ router.delete("/users/:userId/cart",auth.authentication, cartController.deleteCart)
 
  
  
