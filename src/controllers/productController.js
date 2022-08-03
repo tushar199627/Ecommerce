@@ -24,6 +24,7 @@ const createProduct = async function (req, res) {
     if (!price) return res.status(400).send({ status: false, message: 'Please enter price' })
     if (!validator.isValidNumber(price)) return res.status(400).send({ status: false, message: 'Please enter price in only Number' })
 
+    
     if (style) {
         if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate' })
         if (!validator.isValidTitle(style)) return res.status(400).send({ status: false, message: 'Please enter style name in alpha' })
@@ -222,6 +223,8 @@ const updateProductDetails = async function (req, res) {
         }
 
         updateData._id = productId
+
+       
 
         const updateDetails = await productModel.findOneAndUpdate({ id: productId, isDeleted: false }, updateData, { new: true }).select({_v:0})
 
