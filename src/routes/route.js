@@ -28,7 +28,7 @@ const router = express.Router()
  
  router.post("/users/:userId/cart", cartController.createCart)
  router.put("/users/:userId/cart", cartController.updatedCart)
- router.get("/users/:userId/cart", cartController.getCartDetails)
+ //router.get("/users/:userId/cart", cartController.getCartDetails)
  router.delete("/users/:userId/cart", cartController.deleteCart)
 
  

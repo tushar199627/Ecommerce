@@ -140,7 +140,7 @@ const updatedCart = async (req, res) => {
 }
 //***************GET /users/:userId/cart*****************
 
-const getCart = async (req, res) => {
+const getCartDetails = async (req, res) => {
     try {
         let userId = req.params.userId
 
@@ -192,4 +192,4 @@ const deleteCart = async (req, res) => {
 }
 
 
-module.exports = { createCart,updatedCart,getCart,deleteCart }
+module.exports = { createCart,updatedCart,getCartDetails,deleteCart }
