@@ -15,7 +15,7 @@ let createCart = async (req, res) => {
         if (!productId) return res.status(400).send({ status: false, message: 'product id is mandatory' })
         if (typeof productId != "string") return res.status(400).send({ status: false, message: 'product id should be string' })
         if (!validator.isValid(productId)) return res.status(400).send({ status: false, message: 'please enter product id ' })
-        if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'invalid productId' })
+        if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'invalid productId' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!findProduct) return res.status(404).send({ status: false, message: 'no such product found or maybe deleted' })
 
@@ -133,7 +133,7 @@ const updatedCart = async (req, res) => {
         if (!productId) return res.status(400).send({ status: false, message: 'product id is mandatory' })
         if (typeof productId != "string") return res.status(400).send({ status: false, message: 'product id should be string' })
         if (!validator.isValid(productId)) return res.status(400).send({ status: false, message: 'product id should not be empty' })
-        if (!(mongoose.isValidObjectId(productId))) return res.status(400).send({ status: false, message: 'please enter valid product id' })
+        if (!(validator.isValidObjectId(productId))) return res.status(400).send({ status: false, message: 'please enter valid product id' })
         let checkProduct = itemsOfCart.map(x => x.productId.toString())
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
