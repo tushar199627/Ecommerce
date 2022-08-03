@@ -14,8 +14,11 @@ const createProduct = async function (req, res) {
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
         let files = req.files
 
+      
         if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
+        data.title=title.split(' ').filter(s => s).join(' ')
+        
         let uniqueTitle = await productModel.findOne({title});
         if(uniqueTitle) return res.status(400).send({status: false, message: 'the title is already taken'})
 

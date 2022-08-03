@@ -45,4 +45,14 @@ router.delete('/users/:userId/cart', middle.authentication, middle.authorization
 router.post('/users/:userId/orders', middle.authentication, middle.authorization, orderController.orderCreat)
 
 
+
+// global route>>>>>>>>>>
+router.all("*", function (req, res) {
+    res.status(400).send({
+        status: false,
+        msg: "please enter valid api"
+    })
+})
+
+
 module.exports = router
