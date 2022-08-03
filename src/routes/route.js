@@ -12,7 +12,7 @@ const router = express.Router()
  router.get("/user/:userId/profile",auth.authentication, userController.getUserById)
  router.put("/user/:userId/profile",auth.authentication, userController.updateUserProfile)
 
- //**********************************PRODUCT API****************************************
+ //**********************************PRODUCT API**************************
 
  router.post("/products", productController.createProduct)
  router.get("/products", productController.getProductByFilter )
@@ -21,7 +21,16 @@ const router = express.Router()
  router.delete("/products/:productId", productController.deleteProduct)
 
 
+
+ 
+
+ //**********************************CART API**************************
+ 
  router.post("/users/:userId/cart", cartController.createCart)
+ router.put("/users/:userId/cart", cartController.updatedCart)
+ router.get("/users/:userId/cart", cartController.getCartDetails)
+ router.delete("/users/:userId/cart", cartController.deleteCart)
+
  
  
  module.exports = router;
