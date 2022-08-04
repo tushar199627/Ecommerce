@@ -137,9 +137,9 @@ const updatedCart = async (req, res) => {
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        console.log(removeProduct)
-        if(!removeProduct)  return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
-        if (!validator.isValid(removeProduct)) return res.status(400).send({ status: false, message: 'removeProduct should not be empty' })
+        //console.log(removeProduct)
+        //if(!removeProduct)  return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
+       // if (!validator.isValid(removeProduct)) return res.status(400).send({ status: false, message: 'removeProduct should not be empty' })
 
         if (!(removeProduct === 0 || removeProduct === 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0 in the number Format' })
 
