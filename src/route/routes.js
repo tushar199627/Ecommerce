@@ -44,6 +44,8 @@ router.delete('/users/:userId/cart', middle.authentication, middle.authorization
 
 router.post('/users/:userId/orders', middle.authentication, middle.authorization, orderController.orderCreat)
 
+router.put('/users/:userId/orders', middle.authentication, middle.authorization, orderController.updatedOrders)
+
 
 
 // global route>>>>>>>>>>
