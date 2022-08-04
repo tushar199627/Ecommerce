@@ -6,18 +6,18 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 const { isValidObjectId, isValid, isValidRequestBody, validPassword, validCity, validPincode, validName, validPhone, validEmail } = require("../validator/validate");
 
-//***************************************POST/REGISTER*******************************************************
+//**************POST/REGISTER******************
+
 
 let createUser = async (req, res) => {
 
-  // try {
+  try {
     let data = req.body;
 
     let { fname, lname, email, profileImage, phone, password } = data;
 
-    
     if (!isValidRequestBody(data)) {
-      //validating is there any data inside request body
+      
       return res.status(400).send({ status: false, message: "Please provide the Details" });
     }
 
@@ -43,27 +43,15 @@ let createUser = async (req, res) => {
       return res.status(400).send({ status: false, message: `${email} is not valid email Id` });
     }
 
-    //checking is there same Email Id present inside database or not
-
-    let isAlreadyExistEmail = await userModel.findOne({ email: email });
-    if (isAlreadyExistEmail) {
-      return res.status(400).send({ status: false, message: `this email id- ${email} already exist` });
-    }
-
-    if (!isValid(phone)) {
+     if (!isValid(phone)) {
       return res.status(400).send({ status: false, message: "Please provide a Phone Number or a Valid Phone Number" });
     }
 
     if (!validPhone.test(phone)) {
-      return res.status(400).send({ status: false, message: `this phone number- ${phone} is not valid, try an Indian Number` });
+      return res.status(400).send({ status: false, message: `this phone number-${phone} is not valid, try an Indian Number` });
     }
 
-    //checking is there same phone number present inside database or not
-
-    let isAlreadyExistPhone = await userModel.findOne({ phone: phone });
-    if (isAlreadyExistPhone) {
-      return res.status(400).send({ status: false, message: ` this phone number- ${phone} already exist` });
-    }
+    
     if (!isValid(password)) {
       return res.status(400).send({ status: false, message: "Please provide a Password or a Valid Password", });
 
@@ -74,26 +62,30 @@ let createUser = async (req, res) => {
     }
 
     // hashing password
-    data.password = await bcrypt.hash(password, saltRounds);//
-    // let obj={
-    //   name:kranti,
-    //   Age:23
-    // }
-    // obj.Age=14
-
-    let add = JSON.parse(data.address);
-    data.address = add; //assign the new value
-
+    data.password = await bcrypt.hash(password, saltRounds);
+    
     if(!data.address){
       return res.status(400).send({ status: false, message: "Please provide address" });
     }
 
+    let add
+   if(data.address){
+
+     try{
+      add=JSON.parse(data.address);
+     data.address = add; //assign the new value
+
+     }
+     catch(err){
+      return res.status(400).send({ status: false, message: "address should be in a valid object format" });
+     }
+     
     if (!isValid(add.shipping && add.billing)) {
       return res.status(400).send({ status: false, message: "Please provide shipping Address And Billing Address" });
     }
 
     if (!isValid(add.shipping.street)) {
-      return res.status(400).send({ status: false, message: "Street should be Present" });
+      return res.status(400).send({ status: false, message: "Shipping Street should be Present" });
     }
 
     if (!isValid(add.shipping.city)) {
@@ -101,7 +93,7 @@ let createUser = async (req, res) => {
     }
 
     if (!validCity.test(add.shipping.city)) {
-      return res.status(400).send({ status: false, message: "City cannot be Number" });
+      return res.status(400).send({ status: false, message: "Shipping city cannot be Number" });
     }
 
     if (!isValid(add.shipping.pincode)) {
@@ -113,7 +105,7 @@ let createUser = async (req, res) => {
     }
 
     if (!isValid(add.billing.street)) {
-      return res.status(400).send({ status: false, message: "Street should be Present" });
+      return res.status(400).send({ status: false, message: "Billing Street should be Present" });
     }
 
     if (!isValid(add.billing.city)) {
@@ -132,12 +124,14 @@ let createUser = async (req, res) => {
       return res.status(400).send({ status: false, message: "Please enter a valid Pincode, it should not be alpabetic and should be 6 digit long" });
     }
 
+   }
+    
    //profile Image
 
     let files = req.files;
 
     if (!isValidRequestBody(files)) {
-      return res.status(400).send({ status: false, message: "Upload a image." });
+      return res.status(400).send({ status: false, message: "Please provide a profile image" });
     }
 
     if (files && files.length > 0) {
@@ -148,22 +142,32 @@ let createUser = async (req, res) => {
 
     data.profileImage = profileImage;
 
+    let isAlreadyExistPhone = await userModel.findOne({ phone: phone });
+    if (isAlreadyExistPhone) {
+      return res.status(400).send({ status: false, message: ` this phone number- ${phone} already exist` });
+    }
+
+    let isAlreadyExistEmail = await userModel.findOne({ email: email });
+    if (isAlreadyExistEmail) {
+      return res.status(400).send({ status: false, message: `this email id -${email} already exist` });
+    }
+
     const userCreated = await userModel.create(data);
 
     return res.status(201).send({ status: true, msg: "User Created Successfully", data: userCreated });
-  // } catch (error) {
-  //   res.status(500).send({ status: false, message: error.message });
-  // }
+  } catch (error) {
+    res.status(500).send({ status: false, message: error.message });
+  }
 };
 
-//***************************************POST/LOGIN************************************************************
+//**************POST/LOGIN*********************
 
 let loginUser = async function (req, res) {
   try {
-    //let data = JSON.parse(JSON.stringify(req.body))
+
     let data = req.body
     const { email, password } = data
-    //console.log(email)
+
     if (!isValidRequestBody(data)) {
       return res.status(400).send({ status: false, message: "Please provide login details" });
     }
@@ -175,32 +179,24 @@ let loginUser = async function (req, res) {
     if (!isValid(password)) {
       return res.status(400).send({ status: false, message: "Password is required" });
     }
-    if(!validPassword(password)){
-      return res.status(400).send({ status: false, message: "Password should be between 8 to 15 characters" });
-    }
-
-    
+        
     let details = await userModel.findOne({ email: email });
     if (!details) {
-      return res.status(400).send({ status: false, message: "Email not Exist" });
+      return res.status(400).send({ status: false, message: "This email is not Exist" });
     }
 
     let decypt= await bcrypt.compare(password, details.password )
     if(!decypt){
-      return res.status(400).send({ status: false, message: "Password is Wrong" });
+      return res.status(400).send({ status: false, message: "Password is inappropriate" });
     }
 
-
-    //create the jwt token 
+   //create the jwt token 
     console.log(details._id.toString())
     let token = jwt.sign({
       userId: details._id.toString(), //payload
     }, "project5Group46", { expiresIn: "1d" }); //secret key
 
-    //res.setHeader("Authorization", token)
-
-
-    return res.status(200).send({ status: true, message: "User login successfull", data: { token } })
+    return res.status(200).send({ status: true, message: "User login successfull", data: { userId:details._id,token} })
   }
   catch (err) {
     return res.status(500).send({ status: false, message: err.message });
@@ -231,7 +227,7 @@ let getUserById = async function (req, res) {
 }
 
 
-//**********************************PUT /user/:userId/profile*****************************************************
+//***********PUT /user/:userId/profile******************
 
 let updateUserProfile = async (req, res) => {
 

@@ -2,6 +2,7 @@ const userModel = require("../models/userModel");
 const productModel = require("../models/productModel");
 const cartModel = require("../models/cartModel");
 const validator = require("../validator/validate.js")
+const mongoose = require("mongoose")
 
 
 //************POST /users/:userId/cart*****************
@@ -182,9 +183,9 @@ const deleteCart = async (req, res) => {
         let findCart = await cartModel.findOne({ userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
 
-        const deleteCart = await cartModel.findOneAndUpdate({ _id: findCart._id }, { items: [], totalPrice: 0, totalItems: 0 }, { new: true })
+        await cartModel.findOneAndUpdate({ _id: findCart._id }, { items: [], totalPrice: 0, totalItems: 0 }, { new: true })
 
-        res.status(200).send({ status: true, message: 'successfully deleted', data: deleteCart })
+        res.status(204).send({ status: true, message: 'successfully deleted'})
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
