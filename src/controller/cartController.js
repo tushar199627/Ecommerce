@@ -116,8 +116,9 @@ const updatedCart = async (req, res) => {
         let data = req.body;
         let { productId, cartId, removeProduct } = data;
 
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: 'please enter data to update' })
+        removeProduct = parseInt(removeProduct)
 
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: 'please enter data to update' })
 
         if (!cartId) return res.status(400).send({ status: false, message: 'please enter cartId ' })
         if (typeof cartId != "string") return res.status(400).send({ status: false, message: 'cartId should be string' })
@@ -138,7 +139,7 @@ const updatedCart = async (req, res) => {
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!removeProduct) return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
+        if (!("removeProduct" in req.body)) return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
         if (!validator.isValid(removeProduct)) return res.status(400).send({ status: false, message: 'removeProduct should not be empty' })
 
         if (!(removeProduct === 0 || removeProduct === 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0 in the number Format' })
