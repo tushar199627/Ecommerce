@@ -2,6 +2,7 @@ const express = require('express')
 const userController = require('../controllers/userController')
 const productController = require('../controllers/productController')
 const cartController = require('../controllers/cartController')
+const orderController = require('../controllers/orderController')
 const auth = require("../authentication/authentication")
 const router = express.Router()
 
@@ -26,6 +27,11 @@ const router = express.Router()
  router.put("/users/:userId/cart",auth.authentication, cartController.updatedCart)
  router.get("/users/:userId/cart",auth.authentication, cartController.getCartDetails)
  router.delete("/users/:userId/cart",auth.authentication, cartController.deleteCart)
+
+
+
+ //**********************************ORDER API**************************
+ router.post('/users/:userId/orders', orderController.createOrder)
 
  
  
