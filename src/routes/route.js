@@ -21,9 +21,10 @@ const router = express.Router()
  router.delete("/products/:productId", productController.deleteProduct)
 
  //**********************************CART API**************************
- //router.post("/users/:userId/cart", cartController.createCart)
- router.post("/users/:userId/cart", cartController.getCartDetails)
- router.get("/users/:userId/cart", cartController.deleteCart)
+ router.post("/users/:userId/cart", auth.authentication,auth.authorization,cartController.createCart)
+ router.put("/users/:userId/cart", auth.authentication,auth.authorization,cartController.updatedCart)
+ router.post("/users/:userId/cart", auth.authentication,auth.authorization,cartController.getCart)
+ router.get("/users/:userId/cart",auth.authentication,auth.authorization, cartController.deleteCart)
  
  
  module.exports = router;

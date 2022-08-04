@@ -88,7 +88,7 @@ const createProduct = async function (req, res) {
 //*************************************Get product by filter*********************************************************
 
 const getProductByFilter = async (req, res) => {
-    const reqBody = req.body
+    const reqBody = req.query
     const { size, name, priceGreaterThan, priceLessThan, priceSort } = reqBody
     const priceSorts = (priceSort || 1)
     if(priceSorts > 1 || priceSorts < -1 || priceSorts == 0){
