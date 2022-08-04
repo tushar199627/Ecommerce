@@ -27,12 +27,10 @@ let validPassword = function (value) {
 };
 
 
-
-
 let validCity = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
 let validPincode = /^[1-9][0-9]{5}$/;
 let validName = /[a-zA-Z][a-zA-Z ]+[a-zA-Z]$/;
-let validPhone = /^[6-9]\d{9}$/;
+let validPhone =/^\s*(\+91)?[6789][0-9]{9}\s*$/;
 let validString = /^[ a-z ]+$/i;
 let validEmail = /^([a-zA-Z0-9\._]+)@([a-zA-Z0-9])+.([a-z]+)(.[a-z]+)?$/;
 

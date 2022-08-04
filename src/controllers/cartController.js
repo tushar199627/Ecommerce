@@ -2,7 +2,8 @@ const userModel = require("../models/userModel");
 const productModel = require("../models/productModel");
 const cartModel = require("../models/cartModel");
 const validator = require("../validator/validate.js")
-//const validator = require("validator")
+const mongoose = require("mongoose")
+
 
 //************POST /users/:userId/cart*****************
 
@@ -26,7 +27,7 @@ let createCart = async (req, res) => {
             productId,
             quantity: 1
         }
-        
+
         let findCart
 
         if ("cartId" in req.body) {
@@ -82,7 +83,6 @@ let createCart = async (req, res) => {
 const updatedCart = async (req, res) => {
     try {
         let userId = req.params.userId;
-        console.log(userId)
         let data = req.body;
         let { productId, cartId, removeProduct } = data;
 
