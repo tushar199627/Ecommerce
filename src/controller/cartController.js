@@ -83,6 +83,8 @@ const getCart = async (req, res) => {
         let findCart = await cartModel.findOne({ userId }).select({ createdAt: 0, updatedAt: 0 }).populate('items.productId', { __v: 0, _id: 0, isDeleted: 0, createdAt: 0, deletedAt: 0, currencyId: 0, currencyFormat: 0, updatedAt: 0, availableSizes: 0 })
         if (!findCart) return res.status(404).send({ status: false, message: 'no such cart found for this user' })
 
+        if(findCart.items.length==0) return res.status(200).send({ status: true, message: 'Cart empty', data: findCart })
+
         res.status(200).send({ status: true, message: 'Success', data: findCart })
 
     } catch (err) {
@@ -139,10 +141,10 @@ const updatedCart = async (req, res) => {
         if (!checkProduct.includes(productId)) return res.status(404).send({ status: false, message: 'product not found in cart' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
 
-        if (!("removeProduct" in req.body)) return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
+        if(!('removeProduct' in req.body))  return res.status(400).send({ status: false, message: 'removeProduct is mandatory' })
         if (!validator.isValid(removeProduct)) return res.status(400).send({ status: false, message: 'removeProduct should not be empty' })
 
-        if (!(removeProduct === 0 || removeProduct === 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0 in the number Format' })
+        if (!(removeProduct == 0 || removeProduct == 1)) return res.status(400).send({ status: false, message: 'removeProduct value should be either 1 or 0 in the number Format' })
 
         for (let i = 0; i < itemsOfCart.length; i++) {
             if (itemsOfCart[i].productId == productId) {

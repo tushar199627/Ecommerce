@@ -23,9 +23,9 @@ const orderSchema = new mongoose.Schema({
 
     status: { type: String, default: 'pending', enum: ["pending", "completed", "cancelled"] },
 
-    deletedAt: { type: Date },//when the document is deleted
+    cancelledAt: { type: Date },//when the document is deleted
 
-    isDeleted: { type: Boolean, default: false },
+    //isDeleted: { type: Boolean },
 
 }, { versionKey: false, timestamps: true })
 
