@@ -2,7 +2,7 @@ const userModel = require("../models/userModel");
 const productModel = require("../models/productModel");
 const cartModel = require("../models/cartModel");
 const validator = require("../validator/validate.js")
-const mongoose = require("mongoose")
+
 
 //************POST /users/:userId/cart*****************
 
@@ -12,11 +12,11 @@ let createCart = async (req, res) => {
         let { cartId, productId } = req.body
 
         if(Object.keys(req.body).length==0) return res.status(400).send({status : false, message : 'Please enter data [ Product Id ]'})
-        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
         let user = await userModel.findOne({ _id: userId })
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
-        if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'invalid productId' })
+        if (!validator.isValidObjectId(productId)) return res.status(400).send({ status: false, message: 'invalid productId' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!findProduct) return res.status(404).send({ status: false, message: 'no such product found or maybe deleted' })
 
@@ -30,7 +30,7 @@ let createCart = async (req, res) => {
         let findCart
 
         if ("cartId" in req.body) {
-            if (!mongoose.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'invalid cartId' })
+            if (!validator.isValidObjectId(cartId)) return res.status(400).send({ status: false, message: 'invalid cartId' })
             findCart = await cartModel.findOne({ _id: cartId, userId })
             
             if(!findCart) return res.status(404).send({ status: false, message: 'cart id does not exists' })
@@ -87,7 +87,7 @@ const updatedCart = async (req, res) => {
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: 'please enter data to update' })
 
-        if (!(mongoose.isValidObjectId(userId))) return res.status(400).send({ status: false, message: 'please enter valid user id' })
+        if (!(validator.isValidObjectId(userId))) return res.status(400).send({ status: false, message: 'please enter valid user id' })
         let user = await userModel.findOne({ _id: userId })
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
@@ -97,11 +97,11 @@ const updatedCart = async (req, res) => {
             return res.status(403).send({ status: false, message: "UnAuthorized Access!!" })
          }
 
-        if (!(mongoose.isValidObjectId(productId))) return res.status(400).send({ status: false, message: 'please enter valid product id' })
+        if (!(validator.isValidObjectId(productId))) return res.status(400).send({ status: false, message: 'please enter valid product id' })
         let findProduct = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!findProduct) return res.status(404).send({ status: false, message: 'product not found' })
 
-        if (!(mongoose.isValidObjectId(cartId))) return res.status(400).send({ status: false, message: 'please enter valid cart Id' })
+        if (!(validator.isValidObjectId(cartId))) return res.status(400).send({ status: false, message: 'please enter valid cart Id' })
         let findCart = await cartModel.findOne({ _id: cartId, userId })
         if (!findCart) return res.status(404).send({ status: false, message: 'cart not found' })
 
@@ -144,7 +144,7 @@ const getCartDetails = async (req, res) => {
     try {
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
         let user = await userModel.findOne({ _id: userId })
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 
@@ -169,7 +169,7 @@ const deleteCart = async (req, res) => {
     try {
         let userId = req.params.userId
 
-        if (!mongoose.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
+        if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'invalid userId' })
         let user = await userModel.findOne({ _id: userId })
         if (!user) return res.status(404).send({ status: false, message: 'no such user found' })
 

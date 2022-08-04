@@ -84,6 +84,10 @@ let createUser = async (req, res) => {
     let add = JSON.parse(data.address);
     data.address = add; //assign the new value
 
+    if(!data.address){
+      return res.status(400).send({ status: false, message: "Please provide address" });
+    }
+
     if (!isValid(add.shipping && add.billing)) {
       return res.status(400).send({ status: false, message: "Please provide shipping Address And Billing Address" });
     }

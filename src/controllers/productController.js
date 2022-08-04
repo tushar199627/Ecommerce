@@ -84,6 +84,11 @@ const createProduct = async function (req, res) {
 
 const getProductByFilter = async (req, res) => {
     const reqBody = req.body
+    if(!validator.isValidRequestBody(reqBody)){
+        return res.status(400).send({ status: false, message: "Please provide the Details" });
+    }
+
+    
     const { size, name, priceGreaterThan, priceLessThan, priceSort } = reqBody
     const priceSorts = (priceSort || 1)
     if(priceSorts > 1 || priceSorts < -1 || priceSorts == 0){
