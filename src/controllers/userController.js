@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 const { isValidObjectId, isValid, isValidRequestBody, validPassword, validCity, validPincode, validName, validPhone, validEmail } = require("../validator/validate");
 
-//***************************************POST/REGISTER*******************************************************
+//**************POST/REGISTER******************
 
 
 let createUser = async (req, res) => {
@@ -160,7 +160,7 @@ let createUser = async (req, res) => {
   }
 };
 
-//***************************************POST/LOGIN************************************************************
+//**************POST/LOGIN*********************
 
 let loginUser = async function (req, res) {
   try {
@@ -227,7 +227,7 @@ let getUserById = async function (req, res) {
 }
 
 
-//**********************************PUT /user/:userId/profile*****************************************************
+//***********PUT /user/:userId/profile******************
 
 let updateUserProfile = async (req, res) => {
 

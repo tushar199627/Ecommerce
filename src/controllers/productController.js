@@ -24,12 +24,7 @@ const createProduct = async function (req, res) {
     if (!price) return res.status(400).send({ status: false, message: 'Please enter price' })
     if (!validator.isValidNumber(price)) return res.status(400).send({ status: false, message: 'Please enter price in only Number' })
 
-    if (!currencyId) return res.status(400).send({ status: false, message: 'Please enter currencyId' })
-    if (currencyId != "INR") return res.status(400).send({ status: false, message: 'Please enter currencyId as INR' })
-
-    if (!currencyFormat) return res.status(400).send({ status: false, message: 'Please enter currencyFormat' })
-    if (currencyFormat != "₹") return res.status(400).send({ status: false, message: 'Please enter currencyFormat as ₹' })
-
+    
     if (style) {
         if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate' })
         if (!validator.isValidTitle(style)) return res.status(400).send({ status: false, message: 'Please enter style name in alpha' })
@@ -88,7 +83,12 @@ const createProduct = async function (req, res) {
 //*************************************Get product by filter*********************************************************
 
 const getProductByFilter = async (req, res) => {
-    const reqBody = req.query
+    const reqBody = req.body
+    if(!validator.isValidRequestBody(reqBody)){
+        return res.status(400).send({ status: false, message: "Please provide the Details" });
+    }
+
+    
     const { size, name, priceGreaterThan, priceLessThan, priceSort } = reqBody
     const priceSorts = (priceSort || 1)
     if(priceSorts > 1 || priceSorts < -1 || priceSorts == 0){
@@ -229,9 +229,7 @@ const updateProductDetails = async function (req, res) {
 
         updateData._id = productId
 
-        updateData.currencyId = 'INR'
-
-        updateData.currencyFormat = '₹'
+       
 
         const updateDetails = await productModel.findOneAndUpdate({ id: productId, isDeleted: false }, updateData, { new: true }).select({_v:0})
 
