@@ -96,7 +96,7 @@ const createOrder = async function (req, res) {
 
     let totalQuantity = 0;
     for (let i = 0; i < findCartDetail.items.length; i++) {
-      totalQuantity += findCartDetail.items[i].quantity;
+      totalQuantity = totalQuantity + findCartDetail.items[i].quantity;
     }
     orderData.totalQuantity = totalQuantity;
 
