@@ -61,6 +61,7 @@ const userRegister = async function (req, res) {
 
         if (!shipping) return res.status(400).send({ status: false, message: 'Please enter shipping address' })
         if (!Fulladdress.shipping.street) return res.status(400).send({ status: false, message: "Please enter shipping street" })
+        if (!validator.isValid(shipping.street)) return res.status(400).send({ status: false, message: 'Please enter shipping street in right formate' })
 
         if (!Fulladdress.shipping.city) return res.status(400).send({ status: false, message: "Please enter shipping city" })
         if (!validator.isValidName(Fulladdress.shipping.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
@@ -70,6 +71,7 @@ const userRegister = async function (req, res) {
 
         if (!billing) return res.status(400).send({ status: false, message: 'Please enter billing address' })
         if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
+        if (!validator.isValid(billing.street)) return res.status(400).send({ status: false, message: 'Please enter billing street in right formate' })
 
         if (!Fulladdress.billing.city) return res.status(400).send({ status: false, message: "Please enter billing city" })
         if (!validator.isValidName(Fulladdress.billing.city)) return res.status(400).send({ status: false, message: "Enter a valid city name in shipping" })
@@ -119,7 +121,7 @@ const userLogin = async function (req, res) {
     if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
 
     const Login = await userModel.findOne({ email })
-    if (!Login) return res.status(401).send({ status: false, message: 'Not a register email Id' })
+    if (!Login) return res.status(400).send({ status: false, message: 'Not a register email Id' })
 
     //----------[Password Verification]
     let PassDecode = await bcrypt.compare(password, Login.password)

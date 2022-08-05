@@ -22,7 +22,7 @@ const productSchema = new mongoose.Schema(
 
         installments: { type: Number, trim: true },
 
-        deletedAt: { type: Date, default: null },
+        deletedAt: { type: Date },
 
         isDeleted: { type: Boolean, default: false },
 

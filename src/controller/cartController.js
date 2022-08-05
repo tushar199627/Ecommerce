@@ -66,7 +66,7 @@ let createCart = async (req, res) => {
 
         const cartCreated = await cartModel.create(cartCreate)
 
-        res.status(201).send({ status: true, message: "cart created successfully", data: cartCreated })
+        res.status(201).send({ status: true, message: "Success", data: cartCreated })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -163,7 +163,7 @@ const updatedCart = async (req, res) => {
 
                     itemsOfCart[i].quantity = itemsOfCart[i].quantity - 1;
                     const update = await cartModel.findOneAndUpdate({ _id: cartId }, { items: itemsOfCart, totalPrice: findCart.totalPrice - findProduct.price }, { new: true })
-                    return res.status(200).send({ status: true, message: 'One item removed successfully', data: update })
+                    return res.status(200).send({ status: true, message: 'Success', data: update })
                 }
             }
         }

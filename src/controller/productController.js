@@ -30,9 +30,11 @@ const createProduct = async function (req, res) {
 
         if (!currencyId) return res.status(400).send({ status: false, message: 'Please enter currencyId' })
         if (currencyId != "INR") return res.status(400).send({ status: false, message: 'Please enter currencyId as INR' })
-
-        if (!currencyFormat) return res.status(400).send({ status: false, message: 'Please enter currencyFormat' })
-        if (currencyFormat != "₹") return res.status(400).send({ status: false, message: 'Please enter currencyFormat as ₹' })
+        
+        if (currencyFormat) {
+            if (currencyFormat != "₹") return res.status(400).send({ status: false, message: 'Please enter currencyFormat as ₹' })
+        }
+        data.currencyFormat = "₹"
 
         if (style) {
             if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate' })
@@ -72,7 +74,7 @@ const createProduct = async function (req, res) {
         data.productImage = await uploadFile.uploadFile(files[0])
 
         let productdata = await productModel.create(data)
-        res.status(201).send({ status: true, message: "product created successfully", data: productdata })
+        res.status(201).send({ status: true, message: "Success", data: productdata })
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message })
@@ -174,7 +176,7 @@ const updateProductDetails = async function (req, res) {
 
         if ((Object.keys(updateData).length == 0)) return res.status(400).send({ status: false, msg: "please provide data to update" })
 
-        let { title, description, price, style, availableSizes, installments, ...rest } = updateData
+        let { title, description, price, style, availableSizes, installments, isFreeShipping, currencyId, currencyFormat, ...rest } = updateData
 
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: `you can't update on ${Object.keys(rest)} key` })
 
@@ -192,6 +194,7 @@ const updateProductDetails = async function (req, res) {
             if (!validator.isValid(title)) return res.status(400).send({ status: false, message: "title Should be Valid" })
             if (!validator.isValidTitle(title)) return res.status(400).send({ status: false, message: "title should not contain number" })
             if (await productModel.findOne({ title })) return res.status(400).send({ status: false, message: "title Should be Unique" })
+            updateData.title = title.split(' ').filter(s => s).join(' ')
         }
 
         if (description) {
@@ -226,13 +229,23 @@ const updateProductDetails = async function (req, res) {
             if (!validator.isValidNumber(installments)) return res.status(400).send({ status: false, message: "installments Should be whole Number Only" })
         }
 
+        if (currencyId) {
+            if (currencyId != "INR") return res.status(400).send({ status: false, message: 'Please enter currencyId as INR' })
+        }
+
+        if (currencyFormat) {
+            if (currencyFormat != "₹") return res.status(400).send({ status: false, message: 'Please enter currencyFormat as ₹' })
+        }
+
+        if(isFreeShipping){
+            if (!['true', 'false'].includes(isFreeShipping)) {
+                return res.status(400).send({ status: false, message: "isFreeshipping must be a Boolean Value" });
+            }
+        }
+
         updateData._id = productId
 
-        updateData.currencyId = 'INR'
-
-        updateData.currencyFormat = '₹'
-
-        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true }).select({ __v: 0 })
+        const updateDetails = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, updateData, { new: true })
 
         if (!updateDetails) return res.status(404).send({ status: false, message: 'No such product available' })
         return res.status(200).send({ status: true, message: "Product updated successfully", data: updateDetails })
