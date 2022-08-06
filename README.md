@@ -18,7 +18,7 @@
 
 ## FEATURE I - User
 ### Models
-- User Model
+- User Model               
 ```yaml
 { 
   fname: {string, mandatory},

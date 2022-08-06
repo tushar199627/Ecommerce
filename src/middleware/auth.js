@@ -2,6 +2,8 @@ const jwt = require("jsonwebtoken");
 const userModel = require('../model/userModel')
 const mongoose = require('mongoose')
 
+//================================================AUTHENTICATION===========================================================
+
 const authentication = async function (req, res, next) {
     try {
         let token = req.headers.authorization
@@ -10,7 +12,7 @@ const authentication = async function (req, res, next) {
 
         token = token.split(" ")[1];
 
-        jwt.verify(token, "GroupNumber4", function (err, decoded) {
+        jwt.verify(token, "GroupNumber46", function (err, decoded) {
             if (err) {
                 return res.status(401).send({ status: false, message: err.message })
 
@@ -25,7 +27,7 @@ const authentication = async function (req, res, next) {
     }
 }
 
-
+//================================================AUTHORIZATION====================================================
 
 const authorization = async function (req, res, next) {
     try {

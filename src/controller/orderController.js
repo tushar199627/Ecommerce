@@ -4,6 +4,9 @@ const userModel = require('../model/userModel')
 const cartModel = require('../model/cartModel')
 const validator = require('../validation/validator')
 
+
+//===============================================CREATE ORDER BY USER ID====================================================
+
 const orderCreate = async function (req, res) {
     try {
         const data = req.body
@@ -39,6 +42,8 @@ const orderCreate = async function (req, res) {
         return res.status(500).send({ status: false, message: err.message })
     }
 }
+
+//=====================================================UPDATE ORDER BY USERID================================================
 
 const updatedOrders = async (req, res) => {
     try {

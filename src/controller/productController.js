@@ -1,12 +1,10 @@
-
 const productModel = require('../model/productModel')
 const validator = require("../validation/validator")
 const uploadFile = require('../aws/uploadFile')
 const { default: mongoose } = require('mongoose')
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+//=============================================CREATE PRODUCT API=============================================================
 
 const createProduct = async function (req, res) {
     try {
@@ -14,19 +12,28 @@ const createProduct = async function (req, res) {
         let { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data
         let files = req.files
 
+       //==============================title validation=========================================
 
         if (!title) return res.status(400).send({ status: false, message: 'Please enter title name' })
         if (!validator.isValid(title)) return res.status(400).send({ status: false, message: 'Please enter title name in right formate' })
         data.title = title.split(' ').filter(s => s).join(' ')
 
+       //===============================DB call for title=======================================
+
         let uniqueTitle = await productModel.findOne({ title });
         if (uniqueTitle) return res.status(400).send({ status: false, message: 'the title is already taken' })
+ 
+        //=============================description validation====================================
 
         if (!description) return res.status(400).send({ status: false, message: 'Please enter description' })
         if (!validator.isValid(description)) return res.status(400).send({ status: false, message: 'Please enter description name in right formate' })
+       
+        //===============================Price validation==========================================
 
         if (!price) return res.status(400).send({ status: false, message: 'Please enter price' })
         if (!validator.isValidNumber(price)) return res.status(400).send({ status: false, message: 'Please enter price in only Number' })
+      
+        //================================currencyId validation=====================================
 
         if (!currencyId) return res.status(400).send({ status: false, message: 'Please enter currencyId' })
         if (currencyId != "INR") return res.status(400).send({ status: false, message: 'Please enter currencyId as INR' })
@@ -35,6 +42,8 @@ const createProduct = async function (req, res) {
             if (currencyFormat != "₹") return res.status(400).send({ status: false, message: 'Please enter currencyFormat as ₹' })
         }
         data.currencyFormat = "₹"
+
+        //===============================Style validation=====================================
 
         if (style) {
             if (!validator.isValid(style)) return res.status(400).send({ status: false, message: 'Please enter style name in right formate' })
@@ -68,7 +77,8 @@ const createProduct = async function (req, res) {
             }
         }
 
-        // validation for Product image
+        //==================================validation for Product image======================================
+
         if (files.length == 0) return res.status(400).send({ status: false, message: "Please Provide Product Image" })
         if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'Image type should be png|gif|webp|jpeg|jpg' })
         data.productImage = await uploadFile.uploadFile(files[0])
@@ -82,8 +92,7 @@ const createProduct = async function (req, res) {
 }
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+//============================================GET PRODUCTS BY FILTER==================================================
 
 const getAllProduct = async function (req, res) {
     try {
@@ -124,8 +133,7 @@ const getAllProduct = async function (req, res) {
 }
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+//===============================================GET PRODUCT BY PRODUCT ID============================================
 
 const getById = async (req, res) => {
     try {
@@ -143,30 +151,7 @@ const getById = async (req, res) => {
     }
 }
 
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-const deleteProduct = async (req, res) => {
-    try {
-        const productId = req.params.productId;
-
-        if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please enter valid productId in params path" });
-
-        const checkProduct = await productModel.findOne({ _id: productId, isDeleted: false });
-        if (!checkProduct) return res.status(404).send({ status: false, message: "productId invalid or the product is deleted" });
-
-        await productModel.findByIdAndUpdate({ _id: productId }, { isDeleted: true, deletedAt: Date.now() });
-
-        res.status(200).send({ status: true, message: 'deleted sucessfully' })
-
-    } catch (err) {
-        return res.status(500).send({ status: false, message: err.message })
-    }
-}
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
+//================================================UPDATE PRODUCT BY PRODUCT ID======================================
 
 const updateProductDetails = async function (req, res) {
     try {
@@ -255,6 +240,25 @@ const updateProductDetails = async function (req, res) {
     }
 }
 
+//==========================================DELETE PRODUCT BY PRODUCT ID==============================================
+
+const deleteProduct = async (req, res) => {
+    try {
+        const productId = req.params.productId;
+
+        if (!mongoose.isValidObjectId(productId)) return res.status(400).send({ status: false, message: "Please enter valid productId in params path" });
+
+        const checkProduct = await productModel.findOne({ _id: productId, isDeleted: false });
+        if (!checkProduct) return res.status(404).send({ status: false, message: "productId invalid or the product is deleted" });
+
+        await productModel.findByIdAndUpdate({ _id: productId }, { isDeleted: true, deletedAt: Date.now() });
+
+        res.status(200).send({ status: true, message: 'deleted sucessfully' })
+
+    } catch (err) {
+        return res.status(500).send({ status: false, message: err.message })
+    }
+}
 
 
-module.exports = { createProduct, getById, deleteProduct, getAllProduct, updateProductDetails }
+module.exports = { createProduct, getAllProduct, getById, updateProductDetails, deleteProduct }

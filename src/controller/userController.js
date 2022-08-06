@@ -5,8 +5,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 
-//=======================[User Register API]=======================
-
+//=============================================USER REGISTER API===========================================================
 
 const userRegister = async function (req, res) {
     try {
@@ -14,37 +13,44 @@ const userRegister = async function (req, res) {
         let files = req.files
         let { fname, lname, email, phone, password, address } = data
 
-        //-----------------[Require field validation]
+        //=======================Require field validation=======================
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please Enter data" })
 
-        //---------[first Name validation]
-        if (!fname) return res.status(400).send({ status: false, message: 'Please enter first name' })
-        if (!validator.isValid(fname)) return res.status(400).send({ status: false, message: 'Please enter first name in right formate' })
-        if (!validator.isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter first name in right formate" })
+        //========================first Name validation==========================
 
-        //----------[Last Name validation]
+        if (!fname) return res.status(400).send({ status: false, message: 'Please enter first name' })
+        if (!validator.isValid(fname)) return res.status(400).send({ status: false, message: 'fname should not be empty' })
+        if (!validator.isValidName(fname)) return res.status(400).send({ status: false, message: "fname should be in string format" })
+
+        //========================Last Name validation=============================
+
         if (!lname) return res.status(400).send({ status: false, message: 'Please enter lname' })
         if (!validator.isValid(lname)) return res.status(400).send({ status: false, message: 'Please enter last name in right formate' })
         if (!validator.isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter last name in right formate" })
 
-        //----------[Email validation]
+        //=========================Email validation=================================
+
         if (!email) return res.status(400).send({ status: false, message: 'Please enter email' })
         if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
 
-        //----------[File validation]
+        //==========================File validation==================================
+
         if (files.length == 0) return res.status(400).send({ status: false, message: "Please give profile photo" })
         if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
 
-        //----------[Phone Number validation]
+        //==========================Phone Number validation===========================
+
         if (!phone) return res.status(400).send({ status: false, message: 'Please enter phone' })
         if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
 
-        //----------[Password Validation]
+        //===========================Password Validation================================
+
         if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
         if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character[At least One Upper letter, one small letter, one number and one special charater]' })
 
-        //----------[Address Validation]
+        //============================Address Validation=================================
+
         if (!address) return res.status(400).send({ status: false, message: 'Please enter address' })
 
         let Fulladdress;
@@ -57,6 +63,8 @@ const userRegister = async function (req, res) {
             }
         }
 
+        //==================================Shipping address validation==========================================
+
         let { shipping, billing } = Fulladdress
 
         if (!shipping) return res.status(400).send({ status: false, message: 'Please enter shipping address' })
@@ -68,7 +76,9 @@ const userRegister = async function (req, res) {
 
         if (!Fulladdress.shipping.pincode) return res.status(400).send({ status: false, message: "Please enter shipping pincode" })
         if (!(/^[1-9]{1}[0-9]{5}$/).test(Fulladdress.shipping.pincode)) return res.status(400).send({ status: false, message: "invalid Pincode in shipping" })
-
+      
+        //==================================billing address validation==========================================
+        
         if (!billing) return res.status(400).send({ status: false, message: 'Please enter billing address' })
         if (!Fulladdress.billing.street) return res.status(400).send({ status: false, message: "Please enter billing street" })
         if (!validator.isValid(billing.street)) return res.status(400).send({ status: false, message: 'Please enter billing street in right formate' })
@@ -81,14 +91,16 @@ const userRegister = async function (req, res) {
 
         data.address = Fulladdress
 
-        //-----------[Password encryption]
+        //=============Password encryption================
+
         const bcryptPassword = await bcrypt.hash(password, 10)
         data.password = bcryptPassword
 
-        //-----------[File upload on AWS]
+        //==============File upload on AWS======================
+
         data.profileImage = await uploadFile.uploadFile(files[0])
 
-        //------------------[Unique field check DB calls]
+        //===============Unique field check DB calls for Email & Phone==========================
 
         const emailUnique = await userModel.findOne({ email })
         if (emailUnique) return res.status(400).send({ status: false, message: 'Already register Email' })
@@ -96,7 +108,8 @@ const userRegister = async function (req, res) {
         const phoneUnique = await userModel.findOne({ phone })
         if (phoneUnique) return res.status(400).send({ status: false, message: "Already register Phone Number" })
 
-        //------------[Document create]
+        //==================Document create=====================
+
         const user = await userModel.create(data)
         return res.status(201).send({ status: true, message: 'User Created Successfully', data: user })
     }
@@ -106,47 +119,57 @@ const userRegister = async function (req, res) {
 }
 
 
-//===========================[User Login API]==========================
-
+//==========================================USER LOGIN API================================================================
 
 const userLogin = async function (req, res) {
+
     let data = req.body
     let { email, password } = data
+  
+     //=======================Require field validation=======================
 
     if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "Please Enter data" })
+
+    //==========================Email validation====================================
 
     if (!email) return res.status(400).send({ status: false, message: 'Please enter email' })
     if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
 
+    //=============================Password Validation=======================================
+
     if (!password) return res.status(400).send({ status: false, message: 'Please enter password' })
+   
+    //==============================DB call for Email===================================
 
     const Login = await userModel.findOne({ email })
     if (!Login) return res.status(400).send({ status: false, message: 'Not a register email Id' })
 
-    //----------[Password Verification]
+    //=============================Password Verification===================================
+
     let PassDecode = await bcrypt.compare(password, Login.password)
     if (!PassDecode) return res.status(401).send({ status: false, message: 'Password not match' })
 
-    //----------[JWT token generate]
+    //=============================JWT token generate=========================================
+
     let token = jwt.sign({
         userId: Login._id.toString()
-    }, "GroupNumber4", { expiresIn: '50d' })
+    }, "GroupNumber46", { expiresIn: '50d' })
 
     res.setHeader("x-api-key", token)
 
     return res.status(200).send({ status: true, message: 'User login successfull', data: { userId: Login._id, token: token } })
 }
 
-
-//===========================[User get profile API]==========================
-
+//=======================================USER GET PROFILE API=====================================================
 
 const userProfile = async function (req, res) {
     try {
         const userId = req.params.userId
 
-        if (!userId) return res.status(400).send({ status: false, message: "Please enter uesrId in params path" })
+        if (!userId) return res.status(400).send({ status: false, message: "Please enter userId in params path" })
         if (!validator.isValidObjectId(userId)) return res.status(400).send({ status: false, message: 'Not a valid userId' })
+
+        //=================================DB Call for userId=======================================================
 
         const checkUser = await userModel.findById(userId)
         if (!checkUser) return res.status(400).send({ status: false, message: "UserId invalid" })
@@ -163,9 +186,10 @@ const userProfile = async function (req, res) {
     }
 }
 
-//===========================[User update profile API]==========================
+//===========================================USER UPDATE PROFILE API=====================================================
 
 let updateProfile = async (req, res) => {
+
     try {
         let userId = req.params.userId;
         let data = req.body;
@@ -177,40 +201,54 @@ let updateProfile = async (req, res) => {
 
         if (Object.keys(data).length == 0 && !files) return res.status(400).send({ status: false, message: 'enter data to update' });
 
+        //================================DB call for UserId===============================
+
         let finduser = await userModel.findOne({ _id: userId });
         if (!finduser) return res.status(404).send({ status: false, message: 'user id does not exist' });
+        
+        //==================================Update first name=================================
 
-        if (fname) {          //Update first name
+        if (fname) {          
             if (!validator.isValid(fname)) return res.status(400).send({ status: false, message: 'Please enter first name in right formate' })
             if (!validator.isValidName(fname)) return res.status(400).send({ status: false, message: "Please enter first name in right formate" })
             finduser.fname = fname;
         }
 
-        if (lname) {        //Update last name
+        //===================================Update last name======================================
+
+        if (lname) {        
             if (!validator.isValid(lname)) return res.status(400).send({ status: false, message: 'Please enter last name in right formate' })
             if (!validator.isValidName(lname)) return res.status(400).send({ status: false, message: "Please enter last name in right formate" })
             finduser.lname = lname;
         }
+ 
+        //=====================================Update email==========================================
 
-        if (email) {        //Update email
+        if (email) {        
             if (!validator.isValidEmail(email)) return res.status(400).send({ status: false, message: 'Please enter valid email' })
             const emailUnique = await userModel.findOne({ email })
             if (emailUnique) return res.status(400).send({ status: false, message: 'Already register Email' })
             finduser.email = email
         }
 
-        if (phone) {      //Update phone 
+        //======================================Update phone==========================================
+
+        if (phone) {      
             if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: 'Please enter a valid phone number' })
             const phoneUnique = await userModel.findOne({ phone })
             if (phoneUnique) return res.status(400).send({ status: false, message: "Already register Phone Number" })
             finduser.phone = phone
         }
 
-        if (password) {     //Update password
+        //======================================Update password=======================================
+
+        if (password) {     
             if (!validator.isValidPassword(password)) return res.status(400).send({ status: false, message: 'Password should be between 8 to 15 character' })
             const bcryptPassword = await bcrypt.hash(password, 10)
             finduser.password = bcryptPassword
         }
+
+        //============================files validation=================================
 
         if (files && files.length > 0) {
             if (!validator.isValidFile(files[0].originalname)) return res.status(400).send({ status: false, message: 'File type should be png|gif|webp|jpeg|jpg' })
@@ -228,7 +266,9 @@ let updateProfile = async (req, res) => {
 
             let { shipping, billing } = address;
 
-            if ("shipping" in address) {                   //Update shipping address  
+            //=================================Update shipping address=======================================
+
+            if ("shipping" in address) {            
 
                 if (Object.keys(shipping).length == 0) return res.status(400).send({ status: false, message: 'if shipping given please provide data to update' })
 
@@ -251,7 +291,9 @@ let updateProfile = async (req, res) => {
                 }
             }
 
-            if ("billing" in address) {                //Update billing address
+            //===================================Update billing address=========================================
+
+            if ("billing" in address) {              
 
                 if (Object.keys(billing).length == 0) return res.status(400).send({ status: false, message: 'if billing given please provide data to update' })
 
@@ -275,10 +317,12 @@ let updateProfile = async (req, res) => {
             }
         }
 
-        //Update Profile
+        //=========================================Update Profile===========================================
+
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userId }, finduser, { new: true });
 
-        //Send Response
+        //=========================================send response============================================
+
         res.status(200).send({ status: true, message: "User profile updated", data: updateProfile });
 
     } catch (err) {
