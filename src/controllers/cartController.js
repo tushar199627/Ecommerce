@@ -10,7 +10,6 @@ let createCart = async (req, res) => {
   try {
     let userId = req.params.userId;
     let { cartId, productId } = req.body;
-/////hello
     if (Object.keys(req.body).length == 0)
       return res
         .status(400)
